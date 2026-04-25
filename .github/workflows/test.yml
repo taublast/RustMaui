@@ -1,0 +1,90 @@
+name: Test Templates
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  # ── Windows: build the net10.0-windows target ──────────────────────────────
+  test-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Install MAUI Windows workload
+        run: dotnet workload install maui-windows
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Pack template
+        shell: bash
+        run: dotnet pack -c Release -o nupkg -p:PackageVersion=0.0.0-ci
+
+      - name: Install template
+        shell: bash
+        run: dotnet new install nupkg/MauiRust.Templates.0.0.0-ci.nupkg
+
+      - name: Create test project
+        shell: bash
+        run: dotnet new maui-rust -n TestApp -o test-app
+
+      - name: Build Windows
+        shell: bash
+        run: dotnet build test-app/app/TestApp/TestApp.csproj -f net10.0-windows10.0.19041.0
+
+  # ── Android: build the net10.0-android target ──────────────────────────────
+  test-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install android
+
+      - name: Install Rust stable with Android targets
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,x86_64-linux-android
+
+      - name: Cache cargo registry and cargo-ndk binary
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/cargo-ndk
+          key: cargo-ndk-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: cargo-ndk-${{ runner.os }}-
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk --locked
+
+      - name: Install Android NDK 27
+        run: |
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.2.12479018"
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/27.2.12479018" >> "$GITHUB_ENV"
+
+      - name: Pack template
+        run: dotnet pack -c Release -o nupkg -p:PackageVersion=0.0.0-ci
+
+      - name: Install template
+        run: dotnet new install nupkg/MauiRust.Templates.0.0.0-ci.nupkg
+
+      - name: Create test project
+        run: dotnet new maui-rust -n TestApp -o test-app
+
+      - name: Build Android
+        run: dotnet build test-app/app/TestApp/TestApp.csproj -f net10.0-android
