@@ -3,10 +3,6 @@ name: Publish NuGet
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Package version (e.g. 1.2.3)'
-        required: true
-        type: string
       publish_nuget:
         description: 'Publish to NuGet.org'
         required: true
@@ -21,7 +17,7 @@ on:
 permissions:
   contents: read
 
-run-name: NuGet release ${{ inputs.version }} #${{ github.run_number }}
+run-name: NuGet release ${{ github.ref_name }} #${{ github.run_number }}
 
 jobs:
   # ── Pack ────────────────────────────────────────────────────────────────────
@@ -48,7 +44,6 @@ jobs:
           dotnet pack MauiRust.Templates.csproj `
             --configuration Release `
             --nologo `
-            -p:PackageVersion=${{ inputs.version }} `
             -p:ContinuousIntegrationBuild=true
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 

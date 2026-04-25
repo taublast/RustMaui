@@ -165,8 +165,8 @@ dotnet pack -c Release -p:PackageVersion=1.1.0 -o ./nupkg
 
 **Publish:**
 
-1. Go to **Actions → Publish NuGet → Run workflow**.
-2. Enter the version (e.g. `1.2.3`).
+1. Bump `<PackageVersion>` in `MauiRust.Templates.csproj` and commit.
+2. Go to **Actions → Publish NuGet → Run workflow**.
 3. Choose whether to publish to NuGet.org, GitHub Packages, or both.
 4. Click **Run workflow**.
 
