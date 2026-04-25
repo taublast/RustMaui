@@ -15,10 +15,10 @@ jobs:
           dotnet-version: '10.x'
 
       - name: Install MAUI workloads
-        # android workload needed because csproj always lists net10.0-android
-        # in TargetFrameworks; MSBuild validates all TFMs even when building
-        # with -f net10.0-ios
-        run: dotnet workload install maui-ios android
+        # all four platform workloads needed: csproj lists net10.0-android,
+        # net10.0-maccatalyst, net10.0-ios, net10.0-windows in TargetFrameworks
+        # and MSBuild validates every TFM at project load even with -f net10.0-ios
+        run: dotnet workload install maui-ios maccatalyst android
 
       - name: Install Rust stable with iOS targets
         uses: dtolnay/rust-toolchain@stable
