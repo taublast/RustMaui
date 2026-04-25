@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <PackageVersion>1.0.0-pre1</PackageVersion>
+    <PackageVersion>1.0.0-pre2</PackageVersion>
     <PackageId>MauiRust.Templates</PackageId>
     <Title>.NET MAUI + Rust Templates</Title>
     <Authors>Nick Kovalsky aka AppoMobi and contributors</Authors>
