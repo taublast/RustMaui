@@ -27,34 +27,68 @@ jobs:
   # ── Pack ────────────────────────────────────────────────────────────────────
   pack:
     name: Pack NuGet package
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-dotnet@v4
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.x'
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            global.json
+            MauiRust.Templates.csproj
 
       - name: Pack
+        shell: pwsh
         run: |
-          dotnet pack -c Release \
-            -p:PackageVersion=${{ inputs.version }} \
-            -p:ContinuousIntegrationBuild=true \
-            -o artifacts/nuget-packages
+          dotnet pack MauiRust.Templates.csproj `
+            --configuration Release `
+            --nologo `
+            -p:PackageVersion=${{ inputs.version }} `
+            -p:ContinuousIntegrationBuild=true
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Collect packages
+        shell: pwsh
+        run: |
+          $artifactDir = Join-Path $env:GITHUB_WORKSPACE 'artifacts/nuget-packages'
+          New-Item -ItemType Directory -Force -Path $artifactDir | Out-Null
+
+          $packageFiles = Get-ChildItem -Path $env:GITHUB_WORKSPACE -Recurse -File |
+            Where-Object {
+              $_.FullName -match '[\\/]bin[\\/]Release[\\/]' -and
+              ($_.Extension -eq '.nupkg' -or $_.Extension -eq '.snupkg')
+            }
+
+          if (-not $packageFiles) {
+            throw 'No NuGet packages were produced by dotnet pack.'
+          }
+
+          foreach ($f in $packageFiles) {
+            Copy-Item $f.FullName -Destination $artifactDir -Force
+          }
+
+          Write-Host 'Collected packages:'
+          Get-ChildItem $artifactDir | Sort-Object Name | ForEach-Object {
+            Write-Host " - $($_.Name)"
+          }
 
       - name: Upload packages artifact
         uses: actions/upload-artifact@v4
         with:
           name: nuget-packages
-          path: artifacts/nuget-packages/*.nupkg
+          path: artifacts/nuget-packages/*
           if-no-files-found: error
           retention-days: 14
 
   # ── Publish to NuGet.org ────────────────────────────────────────────────────
   publish-nuget:
     name: Publish to NuGet.org
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: pack
     if: ${{ inputs.publish_nuget }}
 
@@ -65,32 +99,35 @@ jobs:
           name: nuget-packages
           path: artifacts/nuget-packages
 
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.x'
+      - name: Setup NuGet CLI
+        uses: NuGet/setup-nuget@v2
 
-      - name: Validate NUGET_API_KEY
+      - name: Push packages to NuGet.org
+        shell: pwsh
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          if [ -z "$NUGET_API_KEY" ]; then
-            echo "ERROR: NUGET_API_KEY secret is not set."
-            exit 1
-          fi
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) {
+            throw 'Missing required repository secret: NUGET_API_KEY'
+          }
 
-      - name: Push to NuGet.org
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: |
-          dotnet nuget push artifacts/nuget-packages/*.nupkg \
-            --api-key "$NUGET_API_KEY" \
-            --source https://api.nuget.org/v3/index.json \
-            --skip-duplicate
+          $packages = Get-ChildItem -Path 'artifacts/nuget-packages' -File |
+            Where-Object { $_.Extension -eq '.nupkg' }
+
+          if (-not $packages) {
+            throw 'No .nupkg files found to publish to NuGet.org.'
+          }
+
+          foreach ($package in $packages) {
+            Write-Host "Publishing $($package.Name) to NuGet.org"
+            nuget push $package.FullName -Source https://api.nuget.org/v3/index.json -ApiKey $env:NUGET_API_KEY -SkipDuplicate -NonInteractive
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
   # ── Publish to GitHub Packages ───────────────────────────────────────────────
   publish-github:
     name: Publish to GitHub Packages
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: pack
     if: ${{ inputs.publish_github }}
     permissions:
@@ -104,22 +141,45 @@ jobs:
           name: nuget-packages
           path: artifacts/nuget-packages
 
-      - uses: actions/setup-dotnet@v4
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.x'
+          dotnet-version: 10.0.x
 
       - name: Configure GitHub Packages source
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget add source \
-            "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --name github-packages \
-            --username "${{ github.actor }}" \
-            --password "${{ secrets.GITHUB_TOKEN }}" \
-            --store-password-in-clear-text
+          if ([string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
+            throw 'Missing GitHub Packages auth via GITHUB_TOKEN.'
+          }
 
-      - name: Push to GitHub Packages
+          $sourceName = 'github-actions'
+          $sourceUrl = 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'
+
+          dotnet nuget remove source $sourceName 2>$null
+          dotnet nuget add source $sourceUrl --name $sourceName --username '${{ github.actor }}' --password $env:GITHUB_TOKEN --store-password-in-clear-text
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Push packages to GitHub Packages
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dotnet nuget push artifacts/nuget-packages/*.nupkg \
-            --source github-packages \
-            --api-key "${{ secrets.GITHUB_TOKEN }}" \
-            --skip-duplicate
+          if ([string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
+            throw 'Missing GitHub Packages auth via GITHUB_TOKEN.'
+          }
+
+          $packages = Get-ChildItem -Path 'artifacts/nuget-packages' -File |
+            Where-Object { $_.Extension -eq '.nupkg' }
+
+          if (-not $packages) {
+            throw 'No .nupkg files found to publish to GitHub Packages.'
+          }
+
+          foreach ($package in $packages) {
+            Write-Host "Publishing $($package.Name) to GitHub Packages"
+            dotnet nuget push $package.FullName --source github-actions --api-key $env:GITHUB_TOKEN --skip-duplicate --force-english-output
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
