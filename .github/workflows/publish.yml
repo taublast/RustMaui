@@ -1,0 +1,35 @@
+name: Publish NuGet
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Validate secrets
+        run: |
+          if [ -z "${{ secrets.NUGET_API_KEY }}" ]; then
+            echo "ERROR: NUGET_API_KEY secret is not set."
+            exit 1
+          fi
+
+      - name: Pack
+        # Strip the leading 'v' from the tag to get the NuGet version (v1.2.3 -> 1.2.3)
+        run: dotnet pack -c Release -p:PackageVersion=${GITHUB_REF_NAME#v} -o ./nupkg
+
+      - name: Push to NuGet.org
+        run: >
+          dotnet nuget push ./nupkg/*.nupkg
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
