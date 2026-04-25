@@ -1,0 +1,17 @@
+[package]
+name = "rust_native"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+# cdylib for Windows/Android/MacCatalyst (dynamic load by .NET P/Invoke).
+# staticlib for iOS device — Apple forbids loading arbitrary dylibs at runtime,
+# so the iOS app links the .a directly into its main binary.
+crate-type = ["cdylib", "staticlib"]
+
+# libloading + once_cell needed on platforms where we resolve libSkiaSharp
+# symbols at runtime. iOS device uses extern "C" resolved at static-link time.
+[target.'cfg(any(not(target_os = "ios"), target_abi = "macabi", target_abi = "sim"))'.dependencies]
+libloading = "0.8"
+once_cell = "1.19"
