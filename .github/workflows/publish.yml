@@ -36,12 +36,12 @@ jobs:
           cache: true
           cache-dependency-path: |
             global.json
-            AppoMobi.MauiRust.Templates.csproj
+            Community.MauiRust.Templates.csproj
 
       - name: Pack
         shell: pwsh
         run: |
-          dotnet pack AppoMobi.MauiRust.Templates.csproj `
+          dotnet pack Community.MauiRust.Templates.csproj `
             --configuration Release `
             --nologo `
             -p:ContinuousIntegrationBuild=true

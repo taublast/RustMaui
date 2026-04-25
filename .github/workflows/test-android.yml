@@ -44,7 +44,7 @@ jobs:
         run: dotnet pack -c Release -o nupkg -p:PackageVersion=0.0.0-ci
 
       - name: Install template
-        run: dotnet new install nupkg/AppoMobi.MauiRust.Templates.0.0.0-ci.nupkg
+        run: dotnet new install nupkg/Community.MauiRust.Templates.0.0.0-ci.nupkg
 
       - name: Create test project
         run: dotnet new maui-rust -n TestApp -o test-app
