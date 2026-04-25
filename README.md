@@ -24,17 +24,36 @@ This produces:
 ```
 MyApp/
 ├── MyApp.sln
+├── check-prerequisites.ps1     ← run on Windows to verify build prerequisites
+├── check-prerequisites.sh      ← run on macOS/Linux to verify build prerequisites
+├── Prerequisites.md            ← full setup guide
 ├── app/
 │   └── MyApp/
 │       └── MyApp.csproj        ← MAUI app, MSBuild wires Rust automatically
 └── rust/
-    └── rust_native/
+    └── myapp_native/           ← Rust crate (name derived from project name)
         ├── Cargo.toml
         └── src/lib.rs          ← your Rust FFI entry points
 ```
 
 Open `MyApp.sln` in Visual Studio, select a target, press **F5**.  
 MSBuild runs `cargo build` before the MAUI build. No separate terminal needed.
+
+### Before building — verify prerequisites
+
+Every generated project includes scripts that check what is missing:
+
+```powershell
+# Windows
+.\check-prerequisites.ps1
+```
+
+```bash
+# macOS / Linux
+chmod +x check-prerequisites.sh && ./check-prerequisites.sh
+```
+
+Each script reports what is installed and what is not, with the exact fix command for each missing item. See `Prerequisites.md` in the generated project for the full setup guide.
 
 ### Update to a newer template version
 
@@ -68,22 +87,23 @@ MauiRust.Templates/
         │   └── template.json   ← template metadata
         ├── MauiRust.sln
         ├── app/MauiRust/       ← MAUI project
-        └── rust/rust_native/   ← Rust crate (fixed name, not templated)
+        └── rust/mauirustnativelib_native/  ← Rust crate (renamed on instantiation)
 ```
 
-The `sourceName = "MauiRust"` setting in `template.json` makes `dotnet new` replace every
-occurrence of `MauiRust` — in file content, file names, and directory names — with the
-value the user passes via `-n`. The Rust crate name `rust_native` is intentionally fixed
-(no PascalCase-to-snake_case conversion needed).
+The `sourceName = "MauiRust"` setting in `template.json` replaces every occurrence of
+`MauiRust` — in file content, file names, and directory names — with the user-supplied
+project name. A separate `casing` generator replaces `mauirustnativelib` (the token
+embedded in crate and directory names) with the lowercased project name, so
+`mauirustnativelib_native` becomes e.g. `myapp_native`.
 
 ### Edit the template
 
 All template content lives under `content/MauiRust/`. Edit it like any normal project.
 
 - C# namespace and class names: use `MauiRust` — it will be replaced on instantiation.
-- Rust crate name: keep as `rust_native` — it is not renamed on instantiation.
+- Rust crate name: keep `mauirustnativelib` as the token inside crate/dir names — it is lowercased to the project name on instantiation (e.g. `myapp_native`).
 - MAUI project file: `app/MauiRust/MauiRust.csproj`.
-- Rust source: `rust/rust_native/src/lib.rs`.
+- Rust source: `rust/mauirustnativelib_native/src/lib.rs`.
 
 ### Test locally without publishing
 

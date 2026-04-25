@@ -24,6 +24,17 @@
       "fileRename": "mauirustnativelib"
     }
   },
+  "postActions": [
+    {
+      "description": "Prerequisites reminder",
+      "manualInstructions": [
+        {
+          "text": "Before building, verify prerequisites are installed:\n  Windows:        .\\check-prerequisites.ps1\n  macOS / Linux:  chmod +x check-prerequisites.sh && ./check-prerequisites.sh\n\nSee Prerequisites.md for full setup details.\nRequired: .NET 10 + MAUI workloads, Rust (rustup), platform targets, MSVC (Windows), NDK (Android)."
+        }
+      ],
+      "continueOnError": true
+    }
+  ],
   "sources": [
     {
       "modifiers": [
