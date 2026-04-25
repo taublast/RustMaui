@@ -73,12 +73,23 @@ jobs:
           }
 
       - name: Upload packages artifact
+        id: upload
         uses: actions/upload-artifact@v4
         with:
           name: nuget-packages
           path: artifacts/nuget-packages/*
           if-no-files-found: error
           retention-days: 14
+
+      - name: Write job summary
+        shell: pwsh
+        run: |
+          $packages = Get-ChildItem -Path 'artifacts/nuget-packages' -File -Filter '*.nupkg'
+          $lines = @('## Packed NuGet packages', '')
+          foreach ($p in $packages) { $lines += "- ``$($p.Name)``" }
+          $lines += ''
+          $lines += '[Download artifact](${{ steps.upload.outputs.artifact-url }})'
+          $lines -join "`n" >> $env:GITHUB_STEP_SUMMARY
 
   # ── Publish to NuGet.org ────────────────────────────────────────────────────
   publish-nuget:
