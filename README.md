@@ -153,7 +153,7 @@ Or override on the CLI without editing the file (useful for CI):
 dotnet pack -c Release -p:PackageVersion=1.1.0 -o ./nupkg
 ```
 
-### Publish to NuGet.org
+### Publish to NuGet.org and GitHub Packages
 
 **One-time setup — add the secret to GitHub:**
 
@@ -161,21 +161,14 @@ dotnet pack -c Release -p:PackageVersion=1.1.0 -o ./nupkg
 |--------|------------|-----------------|
 | `NUGET_API_KEY` | NuGet.org API key scoped to push packages | [NuGet.org](https://www.nuget.org/account/apikeys) → *Create* → scope to `MauiRust.Templates`, select *Push new packages and package versions* |
 
-**Publish by pushing a version tag:**
+`GITHUB_TOKEN` (used for GitHub Packages) is provided automatically — no secret to create.
 
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
+**Publish:**
 
-The `publish.yml` workflow triggers, packs with version `1.0.0` (tag minus the `v`), and
-pushes to NuGet.org. The package is live within a few minutes.
+1. Go to **Actions → Publish NuGet → Run workflow**.
+2. Enter the version (e.g. `1.2.3`).
+3. Choose whether to publish to NuGet.org, GitHub Packages, or both.
+4. Click **Run workflow**.
 
-**Publish a patch:**
-
-```bash
-git tag v1.0.1
-git push origin v1.0.1
-```
-
-No csproj edit needed — the version is derived entirely from the tag.
+The workflow packs first, then publishes to the selected registries in parallel.
+The package is live on NuGet.org within a few minutes.
