@@ -149,26 +149,26 @@ jobs:
       - name: Configure GitHub Packages source
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          if ([string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
-            throw 'Missing GitHub Packages auth via GITHUB_TOKEN.'
+          if ([string]::IsNullOrWhiteSpace($env:GH_TOKEN)) {
+            throw 'Missing GitHub Packages auth via GH_TOKEN.'
           }
 
           $sourceName = 'github-actions'
           $sourceUrl = 'https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json'
 
           dotnet nuget remove source $sourceName 2>$null
-          dotnet nuget add source $sourceUrl --name $sourceName --username '${{ github.actor }}' --password $env:GITHUB_TOKEN --store-password-in-clear-text
+          dotnet nuget add source $sourceUrl --name $sourceName --username '${{ github.actor }}' --password $env:GH_TOKEN --store-password-in-clear-text
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Push packages to GitHub Packages
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          if ([string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
-            throw 'Missing GitHub Packages auth via GITHUB_TOKEN.'
+          if ([string]::IsNullOrWhiteSpace($env:GH_TOKEN)) {
+            throw 'Missing GitHub Packages auth via GH_TOKEN.'
           }
 
           $packages = Get-ChildItem -Path 'artifacts/nuget-packages' -File |
@@ -180,6 +180,6 @@ jobs:
 
           foreach ($package in $packages) {
             Write-Host "Publishing $($package.Name) to GitHub Packages"
-            dotnet nuget push $package.FullName --source github-actions --api-key $env:GITHUB_TOKEN --skip-duplicate --force-english-output
+            dotnet nuget push $package.FullName --source github-actions --api-key $env:GH_TOKEN --skip-duplicate --force-english-output
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
