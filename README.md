@@ -13,6 +13,21 @@ Press **F5** — Rust builds automatically alongside C#, on Windows, Android, iO
 dotnet new install MauiRust.Templates
 ```
 
+### Update to a newer template version
+
+```bash
+dotnet new update
+```
+
+This updates all installed template packages, including `MauiRust.Templates`.  
+Existing projects are **not** affected — only new projects created after the update use the new template.
+
+### Uninstall
+
+```bash
+dotnet new uninstall MauiRust.Templates
+```
+
 ### Create a new project
 
 ```bash
@@ -55,20 +70,7 @@ chmod +x check-prerequisites.sh && ./check-prerequisites.sh
 
 Each script reports what is installed and what is not, with the exact fix command for each missing item. See `Prerequisites.md` in the generated project for the full setup guide.
 
-### Update to a newer template version
 
-```bash
-dotnet new update
-```
-
-This updates all installed template packages, including `MauiRust.Templates`.  
-Existing projects are **not** affected — only new projects created after the update use the new template.
-
-### Uninstall
-
-```bash
-dotnet new uninstall MauiRust.Templates
-```
 
 ---
 
