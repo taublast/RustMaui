@@ -5,7 +5,7 @@
     <PackageVersion>1.0.0-pre1</PackageVersion>
     <PackageId>MauiRust.Templates</PackageId>
     <Title>.NET MAUI + Rust Templates</Title>
-    <Authors>Nick Kovalsky</Authors>
+    <Authors>Nick Kovalsky aka AppoMobi and contributors</Authors>
     <Description>Project templates for .NET MAUI apps with a Rust native library integrated via MSBuild. Press F5 — Rust builds automatically alongside C#, on Windows, Android, iOS, and MacCatalyst.</Description>
     <PackageTags>dotnet;maui;rust;template;native;cross-platform;android;ios</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
