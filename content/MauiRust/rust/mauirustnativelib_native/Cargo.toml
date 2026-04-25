@@ -1,0 +1,11 @@
+[package]
+name = "mauirustnativelib_native"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+# cdylib for Windows/Android/MacCatalyst (P/Invoke dynamic load).
+# staticlib for iOS device — Apple forbids loading arbitrary dylibs at runtime;
+# the .a is linked directly into the app binary via NativeReference in the csproj.
+crate-type = ["cdylib", "staticlib"]

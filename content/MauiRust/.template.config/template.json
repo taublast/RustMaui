@@ -12,6 +12,18 @@
     "language": "C#",
     "type": "project"
   },
+  "symbols": {
+    "CrateName": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "name",
+        "toLower": true
+      },
+      "replaces": "mauirustnativelib",
+      "fileRename": "mauirustnativelib"
+    }
+  },
   "sources": [
     {
       "modifiers": [

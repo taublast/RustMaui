@@ -1,74 +1,43 @@
 using System.Runtime.InteropServices;
-using SkiaSharp;
-using SkiaSharp.Views.Maui;
 
 namespace MauiRust;
 
 public partial class MainPage : ContentPage
 {
+    private string _result = "–";
+    public string Result
+    {
+        get => _result;
+        private set { _result = value; OnPropertyChanged(); }
+    }
+
     public MainPage()
     {
         InitializeComponent();
+        BindingContext = this;
     }
 
-    private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
+    private void OnInputChanged(object? sender, TextChangedEventArgs e)
     {
-        var canvas = e.Surface.Canvas;
-        canvas.Clear(SKColors.White);
-
-        var info = e.Info;
-        var rect = SKRect.Create(
-            info.Width * 0.25f,
-            info.Height * 0.25f,
-            info.Width * 0.5f,
-            info.Height * 0.5f);
-
-        using (var rectPaint = new SKPaint
+        if (!int.TryParse(EntryA.Text, out var a) || !int.TryParse(EntryB.Text, out var b))
         {
-            Color = SKColors.CornflowerBlue,
-            Style = SKPaintStyle.Fill,
-            IsAntialias = true,
-        })
-        {
-            canvas.DrawRect(rect, rectPaint);
+            Result = "–";
+            return;
         }
-
-        var cx = rect.MidX;
-        var cy = rect.MidY;
-        var radius = MathF.Min(rect.Width, rect.Height) * 0.25f;
-
-        // 0xAARRGGBB — opaque orange
-        const uint colorArgb = 0xFFFF8800u;
-
-        var rc = NativeMethods.rust_native_draw_circle(canvas.Handle, cx, cy, radius, colorArgb);
-        if (rc != 0)
-        {
-            var errPtr = NativeMethods.rust_native_last_error();
-            var msg = errPtr == IntPtr.Zero ? "(no detail)" : Marshal.PtrToStringUTF8(errPtr);
-            System.Diagnostics.Debug.WriteLine($"[rust_native] draw_circle failed: rc={rc} msg={msg}");
-        }
+        Result = NativeMethods.mauirustnativelib_add(a, b).ToString();
     }
 
     private static partial class NativeMethods
     {
-        // "rust_native" maps per-platform:
-        //   Windows      : rust_native.dll
-        //   Android/Linux: librust_native.so
-        //   macOS/MacCat : librust_native.dylib
+        // "mauirustnativelib_native" maps per-platform:
+        //   Windows      : mauirustnativelib_native.dll
+        //   Android/Linux: libmauirustnativelib_native.so
+        //   macOS/MacCat : libmauirustnativelib_native.dylib
         //   iOS device   : statically linked into the app binary (see csproj)
-        private const string Lib = "rust_native";
+        private const string Lib = "mauirustnativelib_native";
 
         [LibraryImport(Lib)]
         [UnmanagedCallConv(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static partial int rust_native_draw_circle(
-            IntPtr canvas,
-            float cx,
-            float cy,
-            float radius,
-            uint colorArgb);
-
-        [LibraryImport(Lib)]
-        [UnmanagedCallConv(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-        public static partial IntPtr rust_native_last_error();
+        public static partial int mauirustnativelib_add(int a, int b);
     }
 }

@@ -13,8 +13,6 @@
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-		<MauiXamlInflator>SourceGen</MauiXamlInflator>
-
 		<ApplicationTitle>MauiRust</ApplicationTitle>
 		<ApplicationId>com.companyname.MauiRust</ApplicationId>
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -43,17 +41,16 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="3.119.0" />
 	</ItemGroup>
 
 	<!-- ============================================================ -->
 	<!-- Rust native library integration                              -->
 	<!-- ============================================================ -->
 	<!--
-	     The Rust crate at ../../rust/rust_native produces a per-target
-	     native binary (cdylib for win/android/maccatalyst, staticlib for
-	     iOS). The BuildRustNative target is hooked into BeforeBuild and
-	     selects a target triple from the current TargetFramework.
+	     The Rust crate at ../../rust/mauirustnativelib_native produces a
+	     per-target native binary (cdylib for win/android/maccatalyst,
+	     staticlib for iOS). BuildRustNative is hooked into BeforeBuild
+	     and selects a target triple from the current TargetFramework.
 
 	     Rust target prerequisites (install with `rustup target add ...`):
 	         windows : x86_64-pc-windows-msvc                 (preinstalled)
@@ -63,48 +60,48 @@
 	-->
 
 	<PropertyGroup>
-		<RustCrateDir>$(MSBuildThisFileDirectory)..\..\rust\rust_native</RustCrateDir>
+		<RustCrateDir>$(MSBuildThisFileDirectory)..\..\rust\mauirustnativelib_native</RustCrateDir>
 		<RustProfile Condition="'$(RustProfile)' == ''">release</RustProfile>
 		<RustCargoFlag Condition="'$(RustProfile)' == 'release'">--release</RustCargoFlag>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
 		<RustTargetTriple>x86_64-pc-windows-msvc</RustTargetTriple>
-		<RustNativeFileName>rust_native.dll</RustNativeFileName>
+		<RustNativeFileName>mauirustnativelib_native.dll</RustNativeFileName>
 		<RustNativeKind>cdylib</RustNativeKind>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
 		<RustTargetTriple>aarch64-linux-android</RustTargetTriple>
-		<RustNativeFileName>librust_native.so</RustNativeFileName>
+		<RustNativeFileName>libmauirustnativelib_native.so</RustNativeFileName>
 		<RustNativeKind>cdylib</RustNativeKind>
 		<RustCargoCommand>cargo $(RustCargoToolchainArgs)ndk -t arm64-v8a -t x86_64 build $(RustCargoFlag)</RustCargoCommand>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RuntimeIdentifier)' == 'iossimulator-arm64'">
 		<RustTargetTriple>aarch64-apple-ios-sim</RustTargetTriple>
-		<RustNativeFileName>librust_native.a</RustNativeFileName>
+		<RustNativeFileName>libmauirustnativelib_native.a</RustNativeFileName>
 		<RustNativeKind>staticlib</RustNativeKind>
 		<RustCargoCommand>cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RuntimeIdentifier)' == 'iossimulator-x64'">
 		<RustTargetTriple>x86_64-apple-ios</RustTargetTriple>
-		<RustNativeFileName>librust_native.a</RustNativeFileName>
+		<RustNativeFileName>libmauirustnativelib_native.a</RustNativeFileName>
 		<RustNativeKind>staticlib</RustNativeKind>
 		<RustCargoCommand>cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RustTargetTriple)' == ''">
 		<RustTargetTriple>aarch64-apple-ios</RustTargetTriple>
-		<RustNativeFileName>librust_native.a</RustNativeFileName>
+		<RustNativeFileName>libmauirustnativelib_native.a</RustNativeFileName>
 		<RustNativeKind>staticlib</RustNativeKind>
 		<RustCargoCommand>cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(RuntimeIdentifier)' == 'maccatalyst-x64'">
 		<RustTargetTriple>x86_64-apple-ios-macabi</RustTargetTriple>
-		<RustNativeFileName>librust_native.dylib</RustNativeFileName>
+		<RustNativeFileName>libmauirustnativelib_native.dylib</RustNativeFileName>
 		<RustNativeKind>cdylib</RustNativeKind>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(RustTargetTriple)' == ''">
 		<RustTargetTriple>aarch64-apple-ios-macabi</RustTargetTriple>
-		<RustNativeFileName>librust_native.dylib</RustNativeFileName>
+		<RustNativeFileName>libmauirustnativelib_native.dylib</RustNativeFileName>
 		<RustNativeKind>cdylib</RustNativeKind>
 	</PropertyGroup>
 
@@ -132,12 +129,12 @@
 	<Target Name="AddRustNativeWindowsContent" AfterTargets="BuildRustNative" BeforeTargets="AssignTargetPaths" Condition="$(TargetFramework.Contains('-windows'))">
 		<ItemGroup>
 			<None Include="$(RustOutputFile)">
-				<Link>rust_native.dll</Link>
+				<Link>mauirustnativelib_native.dll</Link>
 				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 				<Visible>false</Visible>
 			</None>
 			<Content Include="$(RustOutputFile)">
-				<Link>rust_native.dll</Link>
+				<Link>mauirustnativelib_native.dll</Link>
 				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 				<Visible>false</Visible>
 			</Content>
@@ -146,10 +143,10 @@
 
 	<Target Name="AddRustNativeAndroidContent" AfterTargets="BuildRustNative" BeforeTargets="_CollectAdditionalResources;_ResolveAssemblies;ResolveReferences" Condition="$(TargetFramework.Contains('-android'))">
 		<ItemGroup>
-			<AndroidNativeLibrary Include="$(RustCrateDir)\target\aarch64-linux-android\$(RustProfile)\librust_native.so">
+			<AndroidNativeLibrary Include="$(RustCrateDir)\target\aarch64-linux-android\$(RustProfile)\libmauirustnativelib_native.so">
 				<Abi>arm64-v8a</Abi>
 			</AndroidNativeLibrary>
-			<AndroidNativeLibrary Include="$(RustCrateDir)\target\x86_64-linux-android\$(RustProfile)\librust_native.so">
+			<AndroidNativeLibrary Include="$(RustCrateDir)\target\x86_64-linux-android\$(RustProfile)\libmauirustnativelib_native.so">
 				<Abi>x86_64</Abi>
 			</AndroidNativeLibrary>
 		</ItemGroup>

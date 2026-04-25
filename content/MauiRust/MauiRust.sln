@@ -9,8 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiRust", "app\MauiRust\Ma
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rust", "rust", "{2A1B3C4D-5E6F-4789-8A9B-0C1D2E3F4A5B}"
 	ProjectSection(SolutionItems) = preProject
-		rust\rust_native\Cargo.toml = rust\rust_native\Cargo.toml
-		rust\rust_native\src\lib.rs = rust\rust_native\src\lib.rs
+		rust\mauirustnativelib_native\Cargo.toml = rust\mauirustnativelib_native\Cargo.toml
+		rust\mauirustnativelib_native\src\lib.rs = rust\mauirustnativelib_native\src\lib.rs
 	EndProjectSection
 EndProject
 Global
