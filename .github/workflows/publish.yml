@@ -178,10 +178,10 @@ jobs:
           }
 
           $packages = Get-ChildItem -Path 'artifacts/nuget-packages' -File |
-            Where-Object { $_.Extension -eq '.nupkg' }
+            Where-Object { $_.Extension -eq '.nupkg' -or $_.Extension -eq '.snupkg' }
 
           if (-not $packages) {
-            throw 'No .nupkg files found to publish to GitHub Packages.'
+            throw 'No .nupkg/.snupkg files found to publish to GitHub Packages.'
           }
 
           foreach ($package in $packages) {
