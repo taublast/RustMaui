@@ -2,7 +2,7 @@
   "$schema": "http://json.schemastore.org/template",
   "author": "Nick Kovalsky",
   "classifications": ["MAUI", "Rust", "Mobile", "Cross-Platform"],
-  "identity": "MauiRust.Templates.MauiRust.CSharp",
+  "identity": "AppoMobi.MauiRust.Templates.MauiRust.CSharp",
   "name": ".NET MAUI + Rust",
   "shortName": "maui-rust",
   "description": "A .NET MAUI app with a Rust native library integrated via MSBuild. Rust builds automatically with F5 — Windows, Android, iOS, and MacCatalyst.",

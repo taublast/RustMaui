@@ -1,4 +1,4 @@
-# MauiRust.Templates
+# AppoMobi.MauiRust.Templates
 
 `dotnet new` templates for .NET MAUI apps with a Rust native library wired into MSBuild.  
 Press **F5** — Rust builds automatically alongside C#, on Windows, Android, iOS, and MacCatalyst.
@@ -10,7 +10,7 @@ Press **F5** — Rust builds automatically alongside C#, on Windows, Android, iO
 ### Install
 
 ```bash
-dotnet new install MauiRust.Templates
+dotnet new install AppoMobi.MauiRust.Templates
 ```
 
 ### Update to a newer template version
@@ -19,13 +19,13 @@ dotnet new install MauiRust.Templates
 dotnet new update
 ```
 
-This updates all installed template packages, including `MauiRust.Templates`.  
+This updates all installed template packages, including `AppoMobi.MauiRust.Templates`.  
 Existing projects are **not** affected — only new projects created after the update use the new template.
 
 ### Uninstall
 
 ```bash
-dotnet new uninstall MauiRust.Templates
+dotnet new uninstall AppoMobi.MauiRust.Templates
 ```
 
 ### Create a new project
@@ -79,8 +79,8 @@ Each script reports what is installed and what is not, with the exact fix comman
 ### Repo layout
 
 ```
-MauiRust.Templates/
-├── MauiRust.Templates.csproj   ← NuGet packaging project
+AppoMobi.MauiRust.Templates/
+├── AppoMobi.MauiRust.Templates.csproj   ← NuGet packaging project
 ├── .github/workflows/
 │   └── publish.yml             ← publishes on git tag push
 └── content/
@@ -118,7 +118,7 @@ dotnet pack -c Release -o ./nupkg
 **Step 2 — install the local package:**
 
 ```bash
-dotnet new install ./nupkg/MauiRust.Templates.1.0.0.nupkg
+dotnet new install ./nupkg/AppoMobi.MauiRust.Templates.1.0.0.nupkg
 ```
 
 **Step 3 — create a test project:**
@@ -132,16 +132,16 @@ Inspect `/tmp/TestApp` to confirm the name substitution is correct.
 **Step 4 — uninstall when done:**
 
 ```bash
-dotnet new uninstall MauiRust.Templates
+dotnet new uninstall AppoMobi.MauiRust.Templates
 ```
 
 Repeat from Step 1 after each edit. The version in the `.nupkg` filename comes from
-`<PackageVersion>` in `MauiRust.Templates.csproj` — bump it to avoid NuGet's local cache
+`<PackageVersion>` in `AppoMobi.MauiRust.Templates.csproj` — bump it to avoid NuGet's local cache
 serving an old package.
 
 ### Bump the version
 
-Edit `MauiRust.Templates.csproj`:
+Edit `AppoMobi.MauiRust.Templates.csproj`:
 
 ```xml
 <PackageVersion>1.1.0</PackageVersion>
@@ -159,13 +159,13 @@ dotnet pack -c Release -p:PackageVersion=1.1.0 -o ./nupkg
 
 | Secret | What it is | Where to get it |
 |--------|------------|-----------------|
-| `NUGET_API_KEY` | NuGet.org API key scoped to push packages | [NuGet.org](https://www.nuget.org/account/apikeys) → *Create* → scope to `MauiRust.Templates`, select *Push new packages and package versions* |
+| `NUGET_API_KEY` | NuGet.org API key scoped to push packages | [NuGet.org](https://www.nuget.org/account/apikeys) → *Create* → scope to `AppoMobi.MauiRust.Templates`, select *Push new packages and package versions* |
 
 `GITHUB_TOKEN` (used for GitHub Packages) is provided automatically — no secret to create.
 
 **Publish:**
 
-1. Bump `<PackageVersion>` in `MauiRust.Templates.csproj` and commit.
+1. Bump `<PackageVersion>` in `AppoMobi.MauiRust.Templates.csproj` and commit.
 2. Go to **Actions → Publish NuGet → Run workflow**.
 3. Choose whether to publish to NuGet.org, GitHub Packages, or both.
 4. Click **Run workflow**.
