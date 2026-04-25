@@ -47,10 +47,10 @@
 	<!-- Rust native library integration                              -->
 	<!-- ============================================================ -->
 	<!--
-	     The Rust crate at ../../rust/mauirustnativelib_native produces a
-	     per-target native binary (cdylib for win/android/maccatalyst,
-	     staticlib for iOS). BuildRustNative is hooked into BeforeBuild
-	     and selects a target triple from the current TargetFramework.
+	     The Rust crate at ../../rust produces a per-target native binary
+	     (cdylib for win/android/maccatalyst, staticlib for iOS).
+	     BuildRustNative is hooked into BeforeBuild and selects a target
+	     triple from the current TargetFramework.
 
 	     Rust target prerequisites (install with `rustup target add ...`):
 	         windows : x86_64-pc-windows-msvc                 (preinstalled)
@@ -60,7 +60,7 @@
 	-->
 
 	<PropertyGroup>
-		<RustCrateDir>$(MSBuildThisFileDirectory)..\..\rust\mauirustnativelib_native</RustCrateDir>
+		<RustCrateDir>$(MSBuildThisFileDirectory)..\..\rust</RustCrateDir>
 		<RustProfile Condition="'$(RustProfile)' == ''">release</RustProfile>
 		<RustCargoFlag Condition="'$(RustProfile)' == 'release'">--release</RustCargoFlag>
 	</PropertyGroup>

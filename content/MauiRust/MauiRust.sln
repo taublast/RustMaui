@@ -3,14 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "app", "app", "{F95F473B-E98A-ACD6-1986-755F447BE36F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiRust", "src\MauiRust\MauiRust.csproj", "{A00D437E-A8C3-D009-5BAF-07BF5205B752}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiRust", "app\MauiRust\MauiRust.csproj", "{A00D437E-A8C3-D009-5BAF-07BF5205B752}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rust", "rust", "{2A1B3C4D-5E6F-4789-8A9B-0C1D2E3F4A5B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rust", "Rust", "{2A1B3C4D-5E6F-4789-8A9B-0C1D2E3F4A5B}"
 	ProjectSection(SolutionItems) = preProject
-		rust\mauirustnativelib_native\Cargo.toml = rust\mauirustnativelib_native\Cargo.toml
-		rust\mauirustnativelib_native\src\lib.rs = rust\mauirustnativelib_native\src\lib.rs
+		rust\Cargo.toml = rust\Cargo.toml
+		rust\lib.rs = rust\lib.rs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75EF7E13-0658-4FBD-9BE4-D650AE330132}"
+	ProjectSection(SolutionItems) = preProject
+		Prerequisites.md = Prerequisites.md
 	EndProjectSection
 EndProject
 Global
@@ -39,9 +42,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{A00D437E-A8C3-D009-5BAF-07BF5205B752} = {F95F473B-E98A-ACD6-1986-755F447BE36F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {26553C7E-0246-4DEA-89E2-97D961D56C0B}
