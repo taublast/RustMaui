@@ -18,6 +18,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="content\**\*" />
+    <EmbeddedResource Remove="content\**\*" />
+    <None Remove="content\**\*" />
     <Content Include="content\**\*" Exclude="content\**\bin\**;content\**\obj\**;content\**\target\**;content\**\.vs\**;content\**\*.user" />
   </ItemGroup>
 
