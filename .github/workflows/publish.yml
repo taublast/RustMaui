@@ -126,7 +126,7 @@ jobs:
 
           foreach ($package in $packages) {
             Write-Host "Publishing $($package.Name) to NuGet.org"
-            nuget push $package.FullName -Source https://api.nuget.org/v3/index.json -ApiKey $env:NUGET_API_KEY -SkipDuplicate -NonInteractive
+            nuget push $package.FullName -Source https://api.nuget.org/v3/index.json -ApiKey $env:NUGET_API_KEY -NonInteractive
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
 
@@ -186,6 +186,6 @@ jobs:
 
           foreach ($package in $packages) {
             Write-Host "Publishing $($package.Name) to GitHub Packages"
-            dotnet nuget push $package.FullName --source github-actions --api-key $env:GH_TOKEN --skip-duplicate --force-english-output
+            dotnet nuget push $package.FullName --source github-actions --api-key $env:GH_TOKEN --force-english-output
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
