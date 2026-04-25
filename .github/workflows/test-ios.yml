@@ -1,0 +1,38 @@
+name: Test iOS
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-ios:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Install MAUI workloads
+        # android workload needed because csproj always lists net10.0-android
+        # in TargetFrameworks; MSBuild validates all TFMs even when building
+        # with -f net10.0-ios
+        run: dotnet workload install maui-ios android
+
+      - name: Install Rust stable with iOS targets
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim
+
+      - name: Pack template
+        run: dotnet pack -c Release -o nupkg -p:PackageVersion=0.0.0-ci
+
+      - name: Install template
+        run: dotnet new install nupkg/MauiRust.Templates.0.0.0-ci.nupkg
+
+      - name: Create test project
+        run: dotnet new maui-rust -n TestApp -o test-app
+
+      - name: Build iOS simulator
+        run: dotnet build test-app/app/TestApp/TestApp.csproj -f net10.0-ios -p:RuntimeIdentifier=iossimulator-arm64

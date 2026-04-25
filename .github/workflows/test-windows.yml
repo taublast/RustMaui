@@ -1,0 +1,40 @@
+name: Test Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Install MAUI workloads
+        # android workload needed because csproj always lists net10.0-android
+        # in TargetFrameworks; MSBuild validates all TFMs even when building
+        # with -f net10.0-windows10.0.19041.0
+        run: dotnet workload install maui-windows android
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Pack template
+        shell: bash
+        run: dotnet pack -c Release -o nupkg -p:PackageVersion=0.0.0-ci
+
+      - name: Install template
+        shell: bash
+        run: dotnet new install nupkg/MauiRust.Templates.0.0.0-ci.nupkg
+
+      - name: Create test project
+        shell: bash
+        run: dotnet new maui-rust -n TestApp -o test-app
+
+      - name: Build Windows
+        shell: bash
+        run: dotnet build test-app/app/TestApp/TestApp.csproj -f net10.0-windows10.0.19041.0
