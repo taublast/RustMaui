@@ -1,58 +1,32 @@
 # Community.MauiRust
 
-This repository now carries both NuGet packages that make up the MAUI + Rust workflow:
+Community.MauiRust brings .NET MAUI and Rust together through two NuGet packages: a build-time generator package and a `dotnet new` template package.
 
-- `Community.MauiRust.Generators`: build-time package that discovers Rust exports, generates `Rust.Generated.cs`, and wires Rust native build targets.
-- `Community.MauiRust.Templates`: `dotnet new` template package that scaffolds a MAUI app already configured to use the generator package.
-
-The local folder is still `MauiRust.Templates` for now. The intended repository identity is `Community.MauiRust` once the remote rename is done.
-
-## Repository layout
-
-```text
-Community.MauiRust/
-├── Community.MauiRust.slnx
-├── global.json
-├── Directory.Build.props
-├── Directory.Packages.props
-├── build/
-├── eng/
-├── nugets/
-├── src/
-│   ├── Community.MauiRust.Generators/
-│   └── Community.MauiRust.Templates/
-```
+Use it to scaffold a MAUI app with a Rust native library already wired into the normal .NET build, with generated bindings and native build targets handled for you.
 
 ## Packages
 
-`src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj`
-
+### `Community.MauiRust.Generators`
+ 
+ Build-time package that discovers Rust exports, generates `Rust.Generated.cs`, and wires Rust native build targets. 
+ 
 - ships the generator/build package
 - packs `build/Community.MauiRust.Generators.targets`
 - produces the analyzer/build assets consumed by MAUI apps
 
-`src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj`
+ Package docs: [src/Community.MauiRust.Generators/README.md](src/Community.MauiRust.Generators/README.md).
+
+
+### `Community.MauiRust.Templates`
+
+A `dotnet new` template package that scaffolds a MAUI app already configured to use the generator package. See [package README](src/Community.MauiRust.Templates/README.md).
 
 - ships the `dotnet new maui-rust` template
 - carries the scaffold under `src/Community.MauiRust.Templates/content/MauiRust`
 - emits a scaffolded app that references `Community.MauiRust.Generators`
 
-## Generated template shape
+Package docs: [src/Community.MauiRust.Templates/README.md](src/Community.MauiRust.Templates/README.md)
 
-The template produces a repo with this top-level layout:
-
-```text
-MyApp/
-├── MauiRust.sln
-├── check-prerequisites.ps1
-├── check-prerequisites.sh
-├── Prerequisites.md
-├── app/
-├── rust/
-└── src/
-```
-
-The generated app project lives under `src/<AppName>/<AppName>.csproj`.
 
 ## Local commands
 
@@ -76,4 +50,4 @@ Validate the template against locally packed packages:
 
 That validator packs both packages, installs the local template package, generates a temporary app outside the repo tree, adds the local package folder as a NuGet source, and runs a Windows build against the generated app.
 
-See `nugets/nugets.md` for the shared GitHub Actions release workflow and required secrets.
+See [`nugets.md`](./nugets/nugets.md) for the shared GitHub Actions release workflow and required secrets.
