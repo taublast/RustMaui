@@ -14,8 +14,12 @@ public static partial class Rust
     /// </summary>
     private const string Lib = "useskiasharp_native";
 
-    [LibraryImport(Lib, EntryPoint = "add")]
+    [LibraryImport(Lib, EntryPoint = "draw_circle")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-    public static partial int Add(int a, int b);
+    public static partial int DrawCircle(IntPtr canvas, float cx, float cy, float radius, uint colorArgb);
+
+    [LibraryImport(Lib, EntryPoint = "last_error_message")]
+    [UnmanagedCallConv(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+    public static partial nuint LastErrorMessage(IntPtr buffer, nuint bufferLen);
 
 }

@@ -1,27 +1,65 @@
+using System.Runtime.InteropServices;
+using SkiaSharp;
+using SkiaSharp.Views.Maui;
+
 namespace UseSkiaSharp;
 
 public partial class MainPage : ContentPage
 {
-    private string _result = "–";
-    public string Result
-    {
-        get => _result;
-        private set { _result = value; OnPropertyChanged(); }
-    }
-
     public MainPage()
     {
         InitializeComponent();
-        BindingContext = this;
     }
 
-    private void OnInputChanged(object? sender, TextChangedEventArgs e)
+    private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
     {
-        if (!int.TryParse(EntryA.Text, out var a) || !int.TryParse(EntryB.Text, out var b))
+        var canvas = e.Surface.Canvas;
+        canvas.Clear(SKColors.White);
+
+        var info = e.Info;
+        var rect = SKRect.Create(
+            info.Width * 0.25f,
+            info.Height * 0.25f,
+            info.Width * 0.5f,
+            info.Height * 0.5f);
+
+        using (var rectPaint = new SKPaint
         {
-            Result = "–";
-            return;
+            Color = SKColors.CornflowerBlue,
+            Style = SKPaintStyle.Fill,
+            IsAntialias = true,
+        })
+        {
+            canvas.DrawRect(rect, rectPaint);
         }
-        Result = Rust.Add(a, b).ToString();
+
+        var cx = rect.MidX;
+        var cy = rect.MidY;
+        var radius = MathF.Min(rect.Width, rect.Height) * 0.25f;
+
+        const uint colorArgb = 0xFFFF8800u;
+
+        var rc = Rust.DrawCircle(canvas.Handle, cx, cy, radius, colorArgb);
+        if (rc != 0)
+        {
+            var required = Rust.LastErrorMessage(IntPtr.Zero, 0);
+            if (required == 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Rust] DrawCircle failed: rc={rc} msg=(no detail)");
+                return;
+            }
+
+            var buffer = Marshal.AllocHGlobal(checked((int)required));
+            try
+            {
+                Rust.LastErrorMessage(buffer, required);
+                var msg = Marshal.PtrToStringUTF8(buffer) ?? "(invalid utf8)";
+                System.Diagnostics.Debug.WriteLine($"[Rust] DrawCircle failed: rc={rc} msg={msg}");
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(buffer);
+            }
+        }
     }
 }

@@ -1,32 +1,21 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls"
              x:Class="UseSkiaSharp.MainPage"
-             Title="UseSkiaSharp">
+             Title=".NET MAUI">
 
-    <VerticalStackLayout Spacing="16" Padding="32" VerticalOptions="Center">
-
-        <Label Text="Rust: a + b"
-               FontSize="20"
-               HorizontalOptions="Center" />
-
-        <Entry x:Name="EntryA"
-               Placeholder="a"
-               Keyboard="Numeric"
+    <Grid RowDefinitions="Auto,*">
+        <Label Grid.Row="0"
+               FontSize="16"
+               Text="C# draws the rectangle. Rust draws the circle."
                HorizontalOptions="Fill"
-               TextChanged="OnInputChanged" />
+               HorizontalTextAlignment="Center"
+               Margin="0,12" />
 
-        <Entry x:Name="EntryB"
-               Placeholder="b"
-               Keyboard="Numeric"
-               HorizontalOptions="Fill"
-               TextChanged="OnInputChanged" />
-
-        <Label Text="{Binding Result}"
-               FontSize="36"
-               FontAttributes="Bold"
-               HorizontalOptions="Center" />
-
-    </VerticalStackLayout>
+        <skia:SKCanvasView Grid.Row="1"
+                           x:Name="Canvas"
+                           PaintSurface="OnPaintSurface" />
+    </Grid>
 
 </ContentPage>
