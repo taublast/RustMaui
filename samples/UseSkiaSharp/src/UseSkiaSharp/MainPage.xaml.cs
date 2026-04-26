@@ -11,6 +11,9 @@ public partial class MainPage : ContentPage
         InitializeComponent();
     }
 
+    const uint ColorArgb = 0xFFFF8800u;
+    private SKPaint? _rectPaint = null;
+
     private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
     {
         var canvas = e.Surface.Canvas;
@@ -23,23 +26,23 @@ public partial class MainPage : ContentPage
             info.Width * 0.5f,
             info.Height * 0.5f);
 
-        using (var rectPaint = new SKPaint
-        {
-            Color = SKColors.CornflowerBlue,
-            Style = SKPaintStyle.Fill,
-            IsAntialias = true,
-        })
-        {
-            canvas.DrawRect(rect, rectPaint);
-        }
+        _rectPaint ??= new SKPaint
+            {
+                Color = SKColors.CornflowerBlue,
+                Style = SKPaintStyle.Fill,
+                IsAntialias = true,
+            };
+
+        //MAUI
+        canvas.DrawRect(rect, _rectPaint);
 
         var cx = rect.MidX;
         var cy = rect.MidY;
         var radius = MathF.Min(rect.Width, rect.Height) * 0.25f;
+        
+        //RUST
+        int rc = Rust.DrawCircle(canvas.Handle, cx, cy, radius, ColorArgb);
 
-        const uint colorArgb = 0xFFFF8800u;
-
-        var rc = Rust.DrawCircle(canvas.Handle, cx, cy, radius, colorArgb);
         if (rc != 0)
         {
             var required = Rust.LastErrorMessage(IntPtr.Zero, 0);
