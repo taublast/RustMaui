@@ -22,6 +22,6 @@ public partial class MainPage : ContentPage
             Result = "–";
             return;
         }
-        Result = Rust.mauirustnativelib_add(a, b).ToString();
+        Result = Rust.Add(a, b).ToString();
     }
 }
