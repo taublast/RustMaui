@@ -1,0 +1,48 @@
+name: Validate Template on Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate-template-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Install MAUI workloads
+        run: dotnet workload install maui-windows android
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Pack generator package
+        shell: bash
+        run: dotnet pack src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj -c Release -o nupkg
+
+      - name: Pack template package
+        shell: bash
+        run: dotnet pack src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj -c Release -o nupkg -p:PackageVersion=0.0.0-ci
+
+      - name: Add local package source
+        shell: pwsh
+        run: |
+          dotnet nuget remove source community-mauirust-local 2>$null
+          dotnet nuget add source (Resolve-Path 'nupkg') --name community-mauirust-local
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Install template
+        shell: bash
+        run: dotnet new install nupkg/Community.MauiRust.Templates.0.0.0-ci.nupkg
+
+      - name: Create test project
+        shell: bash
+        run: dotnet new maui-rust -n TestApp -o "$RUNNER_TEMP/test-app"
+
+      - name: Build Windows
+        shell: bash
+        run: dotnet build "$RUNNER_TEMP/test-app/src/TestApp/TestApp.csproj" -f net10.0-windows10.0.19041.0 -p:ManagePackageVersionsCentrally=false

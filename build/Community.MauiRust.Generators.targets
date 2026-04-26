@@ -1,0 +1,539 @@
+<Project>
+  <!--
+    Community.MauiRust.Generators — build targets
+    Imported late (after project body) so user properties are already evaluated.
+
+    No required properties for template-generated projects — everything is auto-detected.
+
+    Optional overrides:
+      RustCrateDir         — path to Rust crate root; defaults to ../../rust (template convention)
+      RustLibName          — lib name; auto-read from Cargo.toml [package] name if not set
+      RustProfile          — cargo profile, default "release"
+      RustCargoToolchainArgs — e.g. "+nightly" to select a toolchain
+      RustGeneratorSrcDir  — override path for lib.rs if not at $(RustCrateDir)\lib.rs
+      RustGeneratedFile    — override output path for Rust.Generated.cs
+  -->
+
+  <!-- ================================================================ -->
+  <!-- Auto-detect RustCrateDir and RustLibName                        -->
+  <!-- ================================================================ -->
+
+  <PropertyGroup>
+    <!-- Default: two levels up from the csproj + /rust — matches template layout src/App/App.csproj → rust/ -->
+    <RustCrateDir Condition="'$(RustCrateDir)' == ''">$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '..', '..', 'rust'))</RustCrateDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RustLibName)' == '' and Exists('$(RustCrateDir)\Cargo.toml')">
+    <!-- Read Cargo.toml and extract the first name = "..." value (the [package] name) -->
+    <_CargoToml>$([System.IO.File]::ReadAllText('$(RustCrateDir)\Cargo.toml'))</_CargoToml>
+    <_RawLibName>$([System.Text.RegularExpressions.Regex]::Match($(_CargoToml), 'name\s*=\s*"([^"]+)"').Groups[1].Value)</_RawLibName>
+    <!-- Hyphens are invalid in Rust lib names but valid in package names — normalise -->
+    <RustLibName Condition="'$(_RawLibName)' != ''">$(_RawLibName.Replace('-','_'))</RustLibName>
+  </PropertyGroup>
+
+  <!-- ================================================================ -->
+  <!-- C# binding generator                                             -->
+  <!-- ================================================================ -->
+
+  <PropertyGroup>
+    <RustGeneratorSrcDir Condition="'$(RustGeneratorSrcDir)' == '' and '$(RustCrateDir)' != ''">$(RustCrateDir)</RustGeneratorSrcDir>
+    <RustGeneratedFile   Condition="'$(RustGeneratedFile)'   == ''">$(MSBuildProjectDirectory)\Rust.Generated.cs</RustGeneratedFile>
+  </PropertyGroup>
+
+  <UsingTask TaskName="WriteRustGenerated" TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <Task>
+      <Code Type="Class" Language="cs">
+      <![CDATA[
+        using System;
+        using System.IO;
+        using System.Text;
+        using System.Text.RegularExpressions;
+        using System.Collections.Generic;
+        using Microsoft.Build.Framework;
+        using Microsoft.Build.Utilities;
+
+        public class WriteRustGenerated : Task
+        {
+            [Required] public string LibRsPath  { get; set; }
+            [Required] public string RustCsPath { get; set; }
+            [Required] public string OutputPath { get; set; }
+            public string Namespace { get; set; }
+            public string LibName   { get; set; }
+
+            private static readonly Dictionary<string, string> TypeMap = new Dictionary<string, string>
+            {
+                {"i8","sbyte"},  {"u8","byte"},
+                {"i16","short"}, {"u16","ushort"},
+                {"i32","int"},   {"u32","uint"},
+                {"i64","long"},  {"u64","ulong"},
+                {"f32","float"}, {"f64","double"},
+                {"isize","nint"},{"usize","nuint"},
+                {"c_char","sbyte"}, {"c_schar","sbyte"}, {"c_uchar","byte"},
+                {"c_short","short"},{"c_ushort","ushort"},
+                {"c_int","int"},    {"c_uint","uint"},
+                {"c_long","int"},   {"c_ulong","uint"},
+                {"c_float","float"},{"c_double","double"},
+                {"*mut c_void","IntPtr"},  {"*const c_void","IntPtr"},
+                {"*mut u8","IntPtr"},      {"*const u8","IntPtr"},
+                {"*mut i8","IntPtr"},      {"*const i8","IntPtr"},
+            };
+
+            public override bool Execute()
+            {
+                try
+                {
+                    string libSrc = File.ReadAllText(LibRsPath);
+                    string rustCs = File.Exists(RustCsPath) ? File.ReadAllText(RustCsPath) : string.Empty;
+                string rustCsForScan = StripComments(rustCs);
+
+                    string ns = string.IsNullOrWhiteSpace(Namespace) ? "MauiRust" : Namespace;
+                var nsMatch = Regex.Match(rustCsForScan, @"namespace\s+([\w.]+)");
+                    if (nsMatch.Success) ns = nsMatch.Groups[1].Value;
+
+                    var existing = new HashSet<string>(StringComparer.Ordinal);
+                foreach (Match em in Regex.Matches(rustCsForScan, @"EntryPoint\s*=\s*""([^""]+)"""))
+                        existing.Add(em.Groups[1].Value);
+
+                    var fnRegex = new Regex(
+                        @"#\[no_mangle\](?:\s*#\[[^\]]*\])*\s*pub\s+extern\s+""C""\s+fn\s+(\w+)\s*\(([^)]*)\)\s*(?:->\s*([^{]+?))?\s*\{",
+                        RegexOptions.Singleline);
+
+                    var sb = new StringBuilder();
+                    sb.AppendLine("// <auto-generated/>");
+                    sb.AppendLine("// Source: " + Path.GetFileName(LibRsPath));
+                    sb.AppendLine("// Generated by Community.MauiRust.Generators — do not edit.");
+                    sb.AppendLine("// To override a binding declare it in Rust.cs — it will be skipped here.");
+                    sb.AppendLine();
+                    sb.AppendLine("using System.Runtime.InteropServices;");
+                    sb.AppendLine();
+                    sb.AppendLine("namespace " + ns + ";");
+                    sb.AppendLine();
+                    sb.AppendLine("public static partial class Rust");
+                    sb.AppendLine("{");
+
+                    // Emit Lib constant if Rust.cs doesn't define it
+                    bool hasLib = Regex.IsMatch(rustCsForScan, @"const\s+string\s+Lib\s*=");
+                    if (!hasLib && !string.IsNullOrEmpty(LibName))
+                    {
+                      sb.AppendLine("    /// <summary>");
+                      sb.AppendLine("    /// Native library name inferred from rust/Cargo.toml [package].name or the RustLibName MSBuild override.");
+                      sb.AppendLine("    /// </summary>");
+                        sb.AppendLine("    private const string Lib = \"" + LibName + "\";");
+                        sb.AppendLine();
+                    }
+
+                    foreach (Match m in fnRegex.Matches(libSrc))
+                    {
+                        string name     = m.Groups[1].Value;
+                        string rawParam = m.Groups[2].Value.Trim();
+                        string rawRet   = m.Groups[3].Success ? m.Groups[3].Value.Trim() : string.Empty;
+
+                        if (existing.Contains(name)) continue;
+
+                        bool unknown = false;
+                        string retType  = MapReturn(rawRet, ref unknown);
+                        string csParams = MapParams(rawParam, ref unknown);
+
+                        if (unknown)
+                        {
+                            sb.AppendLine("    // TODO: bind '" + name + "' — unrecognized type(s), declare manually in Rust.cs");
+                        }
+                        else
+                        {
+                            sb.AppendLine("    [LibraryImport(Lib, EntryPoint = \"" + name + "\")]");
+                            sb.AppendLine("    [UnmanagedCallConv(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]");
+                            sb.AppendLine("    public static partial " + retType + " " + ToPascalCase(name) + "(" + csParams + ");");
+                            sb.AppendLine();
+                        }
+                    }
+
+                    sb.AppendLine("}");
+
+                    string content = sb.ToString();
+                    if (!File.Exists(OutputPath) || File.ReadAllText(OutputPath) != content)
+                        File.WriteAllText(OutputPath, content, new System.Text.UTF8Encoding(false));
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError("WriteRustGenerated failed: " + ex.Message);
+                    return false;
+                }
+            }
+
+            private static string MapReturn(string rust, ref bool unknown)
+            {
+                if (string.IsNullOrWhiteSpace(rust)) return "void";
+                string cs;
+                if (TypeMap.TryGetValue(rust.Trim(), out cs)) return cs;
+                unknown = true;
+                return rust.Trim();
+            }
+
+            private static string MapParams(string raw, ref bool unknown)
+            {
+                if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+                var parts = new List<string>();
+                int idx = 0;
+                foreach (string segment in raw.Split(','))
+                {
+                    string trimmed = segment.Trim();
+                    if (string.IsNullOrEmpty(trimmed)) continue;
+                    string paramName, rustType;
+                    int colon = trimmed.IndexOf(':');
+                    if (colon >= 0)
+                    {
+                        paramName = trimmed.Substring(0, colon).Trim();
+                        rustType  = trimmed.Substring(colon + 1).Trim();
+                    }
+                    else { paramName = "arg" + idx; rustType = trimmed; }
+                    paramName = paramName.TrimStart('_');
+                    if (string.IsNullOrEmpty(paramName)) paramName = "arg" + idx;
+                    paramName = EscapeKeyword(ToCamelCase(paramName));
+                    string cs;
+                    if (!TypeMap.TryGetValue(rustType, out cs)) { cs = rustType; unknown = true; }
+                    parts.Add(cs + " " + paramName);
+                    idx++;
+                }
+                return string.Join(", ", parts);
+            }
+
+            private static string ToPascalCase(string snake)
+            {
+                var parts = snake.TrimStart('_').Split('_');
+                var sb = new StringBuilder();
+                foreach (string p in parts)
+                {
+                    if (p.Length == 0) continue;
+                    sb.Append(char.ToUpperInvariant(p[0]));
+                    if (p.Length > 1) sb.Append(p.Substring(1));
+                }
+                return sb.Length > 0 ? sb.ToString() : snake;
+            }
+
+            private static string ToCamelCase(string snake)
+            {
+                var parts = snake.Split('_');
+                if (parts.Length == 0) return snake;
+                var sb = new StringBuilder(parts[0]);
+                for (int i = 1; i < parts.Length; i++)
+                {
+                    if (parts[i].Length == 0) continue;
+                    sb.Append(char.ToUpperInvariant(parts[i][0]));
+                    if (parts[i].Length > 1) sb.Append(parts[i].Substring(1));
+                }
+                return sb.ToString();
+            }
+
+            private static string EscapeKeyword(string name)
+            {
+                switch (name)
+                {
+                    case "out": case "ref": case "in": case "object": case "string":
+                    case "class": case "event": case "base": case "this": case "params":
+                        return "@" + name;
+                    default: return name;
+                }
+            }
+
+            private static string StripComments(string text)
+            {
+              if (string.IsNullOrEmpty(text)) return string.Empty;
+
+              var sb = new StringBuilder(text.Length);
+              bool inLineComment = false;
+              bool inBlockComment = false;
+              bool inString = false;
+              bool inChar = false;
+              bool inVerbatimString = false;
+
+              for (int i = 0; i < text.Length; i++)
+              {
+                char current = text[i];
+                char next = i + 1 < text.Length ? text[i + 1] : '\0';
+
+                if (inLineComment)
+                {
+                  if (current == '\r' || current == '\n')
+                  {
+                    inLineComment = false;
+                    sb.Append(current);
+                  }
+                  continue;
+                }
+
+                if (inBlockComment)
+                {
+                  if (current == '*' && next == '/')
+                  {
+                    inBlockComment = false;
+                    i++;
+                  }
+                  continue;
+                }
+
+                if (inString)
+                {
+                  sb.Append(current);
+
+                  if (inVerbatimString)
+                  {
+                    if (current == '"' && next == '"')
+                    {
+                      sb.Append(next);
+                      i++;
+                      continue;
+                    }
+
+                    if (current == '"')
+                    {
+                      inString = false;
+                      inVerbatimString = false;
+                    }
+                  }
+                  else
+                  {
+                    if (current == '\\' && next != '\0')
+                    {
+                      sb.Append(next);
+                      i++;
+                      continue;
+                    }
+
+                    if (current == '"')
+                      inString = false;
+                  }
+
+                  continue;
+                }
+
+                if (inChar)
+                {
+                  sb.Append(current);
+
+                  if (current == '\\' && next != '\0')
+                  {
+                    sb.Append(next);
+                    i++;
+                    continue;
+                  }
+
+                  if (current == '\'')
+                    inChar = false;
+
+                  continue;
+                }
+
+                if (current == '/' && next == '/')
+                {
+                  inLineComment = true;
+                  i++;
+                  continue;
+                }
+
+                if (current == '/' && next == '*')
+                {
+                  inBlockComment = true;
+                  i++;
+                  continue;
+                }
+
+                if (current == '@' && next == '"')
+                {
+                  sb.Append(current);
+                  sb.Append(next);
+                  i++;
+                  inString = true;
+                  inVerbatimString = true;
+                  continue;
+                }
+
+                if (current == '"')
+                {
+                  sb.Append(current);
+                  inString = true;
+                  continue;
+                }
+
+                if (current == '\'')
+                {
+                  sb.Append(current);
+                  inChar = true;
+                  continue;
+                }
+
+                sb.Append(current);
+              }
+
+              return sb.ToString();
+            }
+        }
+      ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="GenerateRustBindingsFile"
+          BeforeTargets="BeforeBuild;CoreCompile"
+          Inputs="$(RustGeneratorSrcDir)\lib.rs;$(MSBuildProjectDirectory)\Rust.cs"
+          Outputs="$(RustGeneratedFile)"
+          Condition="'$(RustGeneratorSrcDir)' != '' and Exists('$(RustGeneratorSrcDir)\lib.rs')">
+    <WriteRustGenerated
+      LibRsPath="$(RustGeneratorSrcDir)\lib.rs"
+      RustCsPath="$(MSBuildProjectDirectory)\Rust.cs"
+      OutputPath="$(RustGeneratedFile)"
+      Namespace="$(RootNamespace)"
+      LibName="$(RustLibName)" />
+    <Message Importance="high" Text="==&gt; Rust.Generated.cs updated" />
+  </Target>
+
+  <!--
+    Ensure Rust.Generated.cs is in the Compile list even on first build when the file
+    doesn't exist yet on disk (SDK glob misses it at evaluation time).
+    Remove first to avoid duplicates on subsequent builds when the glob does pick it up.
+  -->
+  <ItemGroup Condition="'$(RustGeneratedFile)' != ''">
+    <Compile Remove="$(RustGeneratedFile)" />
+    <Compile Include="$(RustGeneratedFile)" />
+  </ItemGroup>
+
+  <!-- ================================================================ -->
+  <!-- Rust native library build                                        -->
+  <!-- ================================================================ -->
+
+  <PropertyGroup Condition="'$(RustCrateDir)' != '' and '$(RustLibName)' != ''">
+    <RustProfile    Condition="'$(RustProfile)'    == ''">release</RustProfile>
+    <RustCargoFlag  Condition="'$(RustProfile)'    == 'release'">--release</RustCargoFlag>
+  </PropertyGroup>
+
+  <!-- Windows -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-windows')) and '$(RustLibName)' != ''">
+    <RustTargetTriple>x86_64-pc-windows-msvc</RustTargetTriple>
+    <RustNativeFileName>$(RustLibName).dll</RustNativeFileName>
+    <RustNativeKind>cdylib</RustNativeKind>
+  </PropertyGroup>
+
+  <!-- Android (both ABIs via cargo-ndk) -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(RustLibName)' != ''">
+    <RustTargetTriple>aarch64-linux-android</RustTargetTriple>
+    <RustNativeFileName>lib$(RustLibName).so</RustNativeFileName>
+    <RustNativeKind>cdylib</RustNativeKind>
+    <RustCargoCommand>cargo $(RustCargoToolchainArgs)ndk -t arm64-v8a -t x86_64 build $(RustCargoFlag)</RustCargoCommand>
+  </PropertyGroup>
+
+  <!-- iOS simulator — arm64 -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RuntimeIdentifier)' == 'iossimulator-arm64' and '$(RustLibName)' != ''">
+    <RustTargetTriple>aarch64-apple-ios-sim</RustTargetTriple>
+    <RustNativeFileName>lib$(RustLibName).a</RustNativeFileName>
+    <RustNativeKind>staticlib</RustNativeKind>
+    <RustCargoCommand>cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
+  </PropertyGroup>
+
+  <!-- iOS simulator — x64 -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RuntimeIdentifier)' == 'iossimulator-x64' and '$(RustLibName)' != ''">
+    <RustTargetTriple>x86_64-apple-ios</RustTargetTriple>
+    <RustNativeFileName>lib$(RustLibName).a</RustNativeFileName>
+    <RustNativeKind>staticlib</RustNativeKind>
+    <RustCargoCommand>cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
+  </PropertyGroup>
+
+  <!-- iOS device (fallback) -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RustTargetTriple)' == '' and '$(RustLibName)' != ''">
+    <RustTargetTriple>aarch64-apple-ios</RustTargetTriple>
+    <RustNativeFileName>lib$(RustLibName).a</RustNativeFileName>
+    <RustNativeKind>staticlib</RustNativeKind>
+    <RustCargoCommand>cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
+  </PropertyGroup>
+
+  <!-- MacCatalyst — x64 -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(RuntimeIdentifier)' == 'maccatalyst-x64' and '$(RustLibName)' != ''">
+    <RustTargetTriple>x86_64-apple-ios-macabi</RustTargetTriple>
+    <RustNativeFileName>lib$(RustLibName).dylib</RustNativeFileName>
+    <RustNativeKind>cdylib</RustNativeKind>
+  </PropertyGroup>
+
+  <!-- MacCatalyst — arm64 (fallback) -->
+  <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(RustTargetTriple)' == '' and '$(RustLibName)' != ''">
+    <RustTargetTriple>aarch64-apple-ios-macabi</RustTargetTriple>
+    <RustNativeFileName>lib$(RustLibName).dylib</RustNativeFileName>
+    <RustNativeKind>cdylib</RustNativeKind>
+  </PropertyGroup>
+
+  <!-- Derived paths + default cargo command -->
+  <PropertyGroup Condition="'$(RustCrateDir)' != '' and '$(RustTargetTriple)' != ''">
+    <RustCargoToolchainArgs Condition="'$(RustCargoToolchainArgs)' != ''">$(RustCargoToolchainArgs) </RustCargoToolchainArgs>
+    <RustOutputDir>$(RustCrateDir)\target\$(RustTargetTriple)\$(RustProfile)</RustOutputDir>
+    <RustOutputFile>$(RustOutputDir)\$(RustNativeFileName)</RustOutputFile>
+    <RustCargoCheckCommand Condition=" $([MSBuild]::IsOSPlatform('windows'))">where cargo &gt;nul 2&gt;nul</RustCargoCheckCommand>
+    <RustCargoCheckCommand Condition="!$([MSBuild]::IsOSPlatform('windows'))">command -v cargo &gt;/dev/null 2&gt;&amp;1</RustCargoCheckCommand>
+    <RustCargoCommand Condition="'$(RustCargoCommand)' == ''">cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
+  </PropertyGroup>
+
+  <!-- Validate cargo is on PATH -->
+  <Target Name="ValidateRustToolchain" BeforeTargets="BuildRustNative"
+          Condition="'$(RustTargetTriple)' != '' and '$(RustCrateDir)' != ''">
+    <Exec Command="$(RustCargoCheckCommand)" IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="RustCargoCheckExitCode" />
+    </Exec>
+    <Error Condition="'$(RustCargoCheckExitCode)' != '0'"
+           Text="Rust toolchain not found on PATH. Install rustup/cargo and restart your shell before building." />
+  </Target>
+
+  <!-- Build the Rust crate -->
+  <Target Name="BuildRustNative" BeforeTargets="BeforeBuild;CollectNativeReferences"
+          Condition="'$(RustTargetTriple)' != '' and '$(RustCrateDir)' != ''">
+    <Message Importance="high" Text="==&gt; $(RustCargoCommand)" />
+    <Exec Command="$(RustCargoCommand)" WorkingDirectory="$(RustCrateDir)" />
+  </Target>
+
+  <!-- Windows: copy DLL next to app exe -->
+  <Target Name="AddRustNativeWindowsContent" AfterTargets="BuildRustNative" BeforeTargets="AssignTargetPaths"
+          Condition="$(TargetFramework.Contains('-windows')) and '$(RustCrateDir)' != ''">
+    <ItemGroup>
+      <None Include="$(RustOutputFile)">
+        <Link>$(RustLibName).dll</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Visible>false</Visible>
+      </None>
+      <Content Include="$(RustOutputFile)">
+        <Link>$(RustLibName).dll</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Visible>false</Visible>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <!-- Android: place .so files under lib/<abi>/ in the APK -->
+  <Target Name="AddRustNativeAndroidContent" AfterTargets="BuildRustNative"
+          BeforeTargets="_CollectAdditionalResources;_ResolveAssemblies;ResolveReferences"
+          Condition="$(TargetFramework.Contains('-android')) and '$(RustCrateDir)' != ''">
+    <ItemGroup>
+      <AndroidNativeLibrary Include="$(RustCrateDir)\target\aarch64-linux-android\$(RustProfile)\lib$(RustLibName).so">
+        <Abi>arm64-v8a</Abi>
+      </AndroidNativeLibrary>
+      <AndroidNativeLibrary Include="$(RustCrateDir)\target\x86_64-linux-android\$(RustProfile)\lib$(RustLibName).so">
+        <Abi>x86_64</Abi>
+      </AndroidNativeLibrary>
+    </ItemGroup>
+  </Target>
+
+  <!-- iOS: static lib linked into the app binary -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RustCrateDir)' != ''">
+    <NativeReference Include="$(RustOutputFile)" Condition="Exists('$(RustOutputFile)')">
+      <Kind>Static</Kind>
+      <ForceLoad>True</ForceLoad>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+  </ItemGroup>
+
+  <!-- MacCatalyst: dynamic library bundled in the .app -->
+  <ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(RustCrateDir)' != ''">
+    <NativeReference Include="$(RustOutputFile)" Condition="Exists('$(RustOutputFile)')">
+      <Kind>Dynamic</Kind>
+      <SmartLink>False</SmartLink>
+    </NativeReference>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,63 @@
+name: Validate Template on Android
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate-template-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.x'
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+
+      - name: Install Rust stable with Android targets
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,x86_64-linux-android
+
+      - name: Cache cargo registry and cargo-ndk binary
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/cargo-ndk
+          key: cargo-ndk-${{ runner.os }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: cargo-ndk-${{ runner.os }}-
+
+      - name: Install cargo-ndk
+        run: command -v cargo-ndk >/dev/null 2>&1 || cargo install cargo-ndk --locked
+
+      - name: Install Android NDK 27
+        run: |
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --install "ndk;27.2.12479018"
+          echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/27.2.12479018" >> "$GITHUB_ENV"
+
+      - name: Pack generator package
+        run: dotnet pack src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj -c Release -o nupkg
+
+      - name: Pack template package
+        run: dotnet pack src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj -c Release -o nupkg -p:PackageVersion=0.0.0-ci
+
+      - name: Add local package source
+        shell: pwsh
+        run: |
+          dotnet nuget remove source community-mauirust-local 2>$null
+          dotnet nuget add source (Resolve-Path 'nupkg') --name community-mauirust-local
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Install template
+        run: dotnet new install nupkg/Community.MauiRust.Templates.0.0.0-ci.nupkg
+
+      - name: Create test project
+        run: dotnet new maui-rust -n TestApp -o "$RUNNER_TEMP/test-app"
+
+      - name: Build Android
+        run: dotnet build "$RUNNER_TEMP/test-app/src/TestApp/TestApp.csproj" -f net10.0-android -p:ManagePackageVersionsCentrally=false

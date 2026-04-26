@@ -1,174 +1,58 @@
-# Community.MauiRust.Templates
+# Community.MauiRust
 
-`dotnet new` templates for .NET MAUI apps with a Rust native library wired into MSBuild.  
-Press **F5** — Rust builds automatically alongside C#, on Windows, Android, iOS, and MacCatalyst.
+Monorepo for the two NuGet packages that make up the current MAUI + Rust experience:
 
----
+- `Community.MauiRust.Generators`: build-time package that discovers Rust exports, generates `Rust.Generated.cs`, and wires Rust native build targets.
+- `Community.MauiRust.Templates`: `dotnet new` template package that scaffolds a MAUI app already configured to use the generator package.
 
-## For users — install, create, update
+## Repository layout
 
-### Install
-
-```bash
-dotnet new install Community.MauiRust.Templates
+```text
+Community.MauiRust/
+├── Community.MauiRust.slnx
+├── global.json
+├── Directory.Build.props
+├── Directory.Packages.props
+├── build/
+├── eng/
+├── nugets/
+├── src/
+│   └── Community.MauiRust.Generators/
+│   └── Community.MauiRust.Templates/
 ```
 
-### Update to a newer template version
+## Packages
 
-```bash
-dotnet new update
-```
+`src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj`
 
-This updates all installed template packages, including `Community.MauiRust.Templates`.  
-Existing projects are **not** affected — only new projects created after the update use the new template.
+- ships the generator/build package
+- packs `build/Community.MauiRust.Generators.targets`
+- produces the analyzer/build assets consumed by MAUI apps
 
-### Uninstall
+`src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj`
 
-```bash
-dotnet new uninstall Community.MauiRust.Templates
-```
+- ships the `dotnet new maui-rust` template
+- carries the scaffold under `src/Community.MauiRust.Templates/content/MauiRust`
+- references the generator package version in the scaffolded app
 
-### Create a new project
+## Local commands
 
-```bash
-dotnet new maui-rust -n MyApp
-```
-
-This produces:
-
-```
-MyApp/
-├── MyApp.sln
-├── check-prerequisites.ps1     ← run on Windows to verify build prerequisites
-├── check-prerequisites.sh      ← run on macOS/Linux to verify build prerequisites
-├── Prerequisites.md            ← full setup guide
-├── app/
-│   └── MyApp/
-│       └── MyApp.csproj        ← MAUI app, MSBuild wires Rust automatically
-└── rust/
-    └── myapp_native/           ← Rust crate (name derived from project name)
-        ├── Cargo.toml
-        └── src/lib.rs          ← your Rust FFI entry points
-```
-
-Open `MyApp.sln` in Visual Studio, select a target, press **F5**.  
-MSBuild runs `cargo build` before the MAUI build. No separate terminal needed.
-
-### Before building — verify prerequisites
-
-Every generated project includes scripts that check what is missing:
+Pack both packages:
 
 ```powershell
-# Windows
-.\check-prerequisites.ps1
+.\eng\pack-all.ps1
 ```
 
-```bash
-# macOS / Linux
-chmod +x check-prerequisites.sh && ./check-prerequisites.sh
+Pack one package:
+
+```powershell
+.\eng\pack.ps1 -Project src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj
 ```
 
-Each script reports what is installed and what is not, with the exact fix command for each missing item. See `Prerequisites.md` in the generated project for the full setup guide.
+Validate the template against locally packed packages:
 
-
-
----
-
-## For developers — edit, test locally, publish
-
-### Repo layout
-
-```
-Community.MauiRust.Templates/
-├── Community.MauiRust.Templates.csproj   ← NuGet packaging project
-├── .github/workflows/
-│   └── publish.yml             ← publishes on git tag push
-└── content/
-    └── MauiRust/               ← template source (sourceName = "MauiRust")
-        ├── .template.config/
-        │   └── template.json   ← template metadata
-        ├── MauiRust.sln
-        ├── app/MauiRust/       ← MAUI project
-        └── rust/mauirustnativelib_native/  ← Rust crate (renamed on instantiation)
+```powershell
+.\eng\validate-template.ps1
 ```
 
-The `sourceName = "MauiRust"` setting in `template.json` replaces every occurrence of
-`MauiRust` — in file content, file names, and directory names — with the user-supplied
-project name. A separate `casing` generator replaces `mauirustnativelib` (the token
-embedded in crate and directory names) with the lowercased project name, so
-`mauirustnativelib_native` becomes e.g. `myapp_native`.
-
-### Edit the template
-
-All template content lives under `content/MauiRust/`. Edit it like any normal project.
-
-- C# namespace and class names: use `MauiRust` — it will be replaced on instantiation.
-- Rust crate name: keep `mauirustnativelib` as the token inside crate/dir names — it is lowercased to the project name on instantiation (e.g. `myapp_native`).
-- MAUI project file: `app/MauiRust/MauiRust.csproj`.
-- Rust source: `rust/mauirustnativelib_native/src/lib.rs`.
-
-### Test locally without publishing
-
-**Step 1 — pack:**
-
-```bash
-dotnet pack -c Release -o ./nupkg
-```
-
-**Step 2 — install the local package:**
-
-```bash
-dotnet new install ./nupkg/Community.MauiRust.Templates.1.0.0.nupkg
-```
-
-**Step 3 — create a test project:**
-
-```bash
-dotnet new maui-rust -n TestApp -o /tmp/TestApp
-```
-
-Inspect `/tmp/TestApp` to confirm the name substitution is correct.
-
-**Step 4 — uninstall when done:**
-
-```bash
-dotnet new uninstall Community.MauiRust.Templates
-```
-
-Repeat from Step 1 after each edit. The version in the `.nupkg` filename comes from
-`<PackageVersion>` in `Community.MauiRust.Templates.csproj` — bump it to avoid NuGet's local cache
-serving an old package.
-
-### Bump the version
-
-Edit `Community.MauiRust.Templates.csproj`:
-
-```xml
-<PackageVersion>1.1.0</PackageVersion>
-```
-
-Or override on the CLI without editing the file (useful for CI):
-
-```bash
-dotnet pack -c Release -p:PackageVersion=1.1.0 -o ./nupkg
-```
-
-### Publish to NuGet.org and GitHub Packages
-
-**One-time setup — add the secret to GitHub:**
-
-| Secret | What it is | Where to get it |
-|--------|------------|-----------------|
-| `NUGET_API_KEY` | NuGet.org API key scoped to push packages | [NuGet.org](https://www.nuget.org/account/apikeys) → *Create* → scope to `Community.MauiRust.Templates`, select *Push new packages and package versions* |
-
-`GITHUB_TOKEN` (used for GitHub Packages) is provided automatically — no secret to create.
-
-**Publish:**
-
-1. Bump `<PackageVersion>` in `Community.MauiRust.Templates.csproj` and commit.
-2. Go to **Actions → Publish NuGet → Run workflow**.
-3. Choose whether to publish to NuGet.org, GitHub Packages, or both.
-4. Click **Run workflow**.
-
-The workflow packs first, then publishes to the selected registries in parallel.
-The package is live on NuGet.org within a few minutes.
+See `nugets/nugets.md` for the GitHub Actions release workflow and secrets.

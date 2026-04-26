@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj" />
+    <Project Path="src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj" />
+  </Folder>
+</Solution>

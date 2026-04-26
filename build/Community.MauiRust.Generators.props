@@ -1,0 +1,14 @@
+<Project>
+  <!--
+    Auto-discover lib.rs from RustCrateDir (already set by the MauiRust csproj).
+    Set RustGeneratorSrcDir to a custom path to override, or add AdditionalFiles manually.
+  -->
+  <PropertyGroup>
+    <RustGeneratorSrcDir Condition="'$(RustGeneratorSrcDir)' == '' and '$(RustCrateDir)' != ''">$(RustCrateDir)</RustGeneratorSrcDir>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(RustGeneratorSrcDir)' != ''">
+    <AdditionalFiles Include="$(RustGeneratorSrcDir)\lib.rs"
+                     Condition="Exists('$(RustGeneratorSrcDir)\lib.rs')" />
+  </ItemGroup>
+</Project>

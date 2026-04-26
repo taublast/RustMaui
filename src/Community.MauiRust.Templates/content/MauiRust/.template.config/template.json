@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Nick Kovalsky",
+  "classifications": ["MAUI", "Rust", "Mobile", "Cross-Platform"],
+  "identity": "Community.MauiRust.Templates.MauiRust.CSharp",
+  "name": ".NET MAUI + Rust",
+  "shortName": "maui-rust",
+  "description": "A .NET MAUI app with a Rust native library integrated via MSBuild. Rust builds automatically with F5 — Windows, Android, iOS, and MacCatalyst.",
+  "sourceName": "MauiRust",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "GeneratorPackageId": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "Community.MauiRust.Generators",
+      "replaces": "__GENERATOR_PACKAGE_ID__"
+    },
+    "CrateName": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "name",
+        "toLower": true
+      },
+      "replaces": "mauirustnativelib",
+      "fileRename": "mauirustnativelib"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            "**/.vs/**",
+            "**/bin/**",
+            "**/obj/**",
+            "**/target/**",
+            "**/*.user",
+            "**/Cargo.lock"
+          ]
+        }
+      ]
+    }
+  ]
+}
