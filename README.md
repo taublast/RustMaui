@@ -3,7 +3,7 @@
 # RustMaui
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![NuGet release master](https://github.com/taublast/RustMaui/actions/workflows/nuget-release.yml/badge.svg?branch=main)](https://github.com/taublast/RustMaui/actions/workflows/nuget-release.yml)
+[![NuGet release master](https://github.com/taublast/RustMaui/actions/workflows/nuget-release.yml/badge.svg?branch=master)](https://github.com/taublast/RustMaui/actions/workflows/nuget-release.yml)
 
 **Rust superpowers for .NET MAUI** 🍬🌴
 
