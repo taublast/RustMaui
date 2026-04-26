@@ -13,7 +13,7 @@
 
 ---
 
-**RustMaui** brings the **performance, safety, and joy of Rust** directly into your .NET MAUI applications. 
+**RustMaui** brings the **performance, safety, and joy of Rust** directly into your .NET MAUI applications on **Android, iOS, MacCatalyst and Windows**.
 
 It's a combination of cross-platform Rust build support and bindings generators and includes everything you need:
 
@@ -53,12 +53,12 @@ MyApp/
 │       ├── AppShell.xaml
 │       ├── MainPage.xaml
 │       ├── MainPage.xaml.cs
-│       ├── Rust.cs <--  override bindings
+│       ├── Rust.cs <-- override bindings here
 │       ├── Rust.Generated.cs <--  auto-generated bindings
 │       └── MauiRust.csproj
 ├── rust/
 │   ├── Cargo.toml
-│   └── lib.rs <--  add Rust code here or add more `.rs` files
+│   └── lib.rs <--  add exported Rust code here
 └── MyApp.sln
 ```
 
