@@ -67,7 +67,7 @@ After that, make sure your project follows the expected layout or set the releva
 ### Manual install
 
 ```xml
-<PackageReference Include="Community.MauiRust.Generators" Version="1.0.0-pre11">
+<PackageReference Include="Community.MauiRust.Generators" Version="1.0.0-pre12">
   <PrivateAssets>all</PrivateAssets>
   <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 </PackageReference>

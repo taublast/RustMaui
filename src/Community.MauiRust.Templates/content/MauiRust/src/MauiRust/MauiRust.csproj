@@ -41,7 +41,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-		<PackageReference Include="__GENERATOR_PACKAGE_ID__" Version="1.0.0-pre11">
+		<PackageReference Include="__GENERATOR_PACKAGE_ID__" Version="1.0.0-pre12">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

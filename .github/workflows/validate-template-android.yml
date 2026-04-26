@@ -61,3 +61,8 @@ jobs:
 
       - name: Build Android
         run: dotnet build "$RUNNER_TEMP/test-app/src/TestApp/TestApp.csproj" -f net10.0-android -p:ManagePackageVersionsCentrally=false
+
+      - name: Verify generated bindings
+        run: |
+          grep -F 'private const string Lib = ' "$RUNNER_TEMP/test-app/src/TestApp/Rust.Generated.cs"
+          grep -F 'public static partial int Add(int a, int b);' "$RUNNER_TEMP/test-app/src/TestApp/Rust.Generated.cs"

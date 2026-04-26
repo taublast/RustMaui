@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <CommunityMauiRustPackageVersion>1.0.0-pre11</CommunityMauiRustPackageVersion>
+    <CommunityMauiRustPackageVersion>1.0.0-pre12</CommunityMauiRustPackageVersion>
     <CommunityMauiRustPackageAuthors>Nick Kovalsky aka AppoMobi and contributors</CommunityMauiRustPackageAuthors>
     <CommunityMauiRustPackageProjectUrl>https://github.com/taublast/Community.MauiRust</CommunityMauiRustPackageProjectUrl>
     <CommunityMauiRustRepositoryUrl>https://github.com/taublast/Community.MauiRust</CommunityMauiRustRepositoryUrl>

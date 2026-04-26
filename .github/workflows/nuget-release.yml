@@ -161,6 +161,12 @@ jobs:
         shell: pwsh
         run: dotnet build "$env:RUNNER_TEMP/test-app/src/TestApp/TestApp.csproj" -f net10.0-windows10.0.19041.0 -p:ManagePackageVersionsCentrally=false
 
+      - name: Verify generated bindings
+        shell: pwsh
+        run: |
+          Select-String -Path "$env:RUNNER_TEMP/test-app/src/TestApp/Rust.Generated.cs" -SimpleMatch 'private const string Lib = '
+          Select-String -Path "$env:RUNNER_TEMP/test-app/src/TestApp/Rust.Generated.cs" -SimpleMatch 'public static partial int Add(int a, int b);'
+
   validate-template-android:
     name: Validate template on Android
     runs-on: ubuntu-latest
@@ -243,6 +249,11 @@ jobs:
       - name: Build Android
         run: dotnet build "$RUNNER_TEMP/test-app/src/TestApp/TestApp.csproj" -f net10.0-android -p:ManagePackageVersionsCentrally=false
 
+      - name: Verify generated bindings
+        run: |
+          grep -F 'private const string Lib = ' "$RUNNER_TEMP/test-app/src/TestApp/Rust.Generated.cs"
+          grep -F 'public static partial int Add(int a, int b);' "$RUNNER_TEMP/test-app/src/TestApp/Rust.Generated.cs"
+
   validate-template-ios:
     name: Validate template on iOS
     runs-on: macos-26
@@ -311,6 +322,11 @@ jobs:
 
       - name: Build iOS simulator
         run: dotnet build "$RUNNER_TEMP/test-app/src/TestApp/TestApp.csproj" -f net10.0-ios -p:RuntimeIdentifier=iossimulator-arm64 -p:ManagePackageVersionsCentrally=false
+
+      - name: Verify generated bindings
+        run: |
+          grep -F 'private const string Lib = ' "$RUNNER_TEMP/test-app/src/TestApp/Rust.Generated.cs"
+          grep -F 'public static partial int Add(int a, int b);' "$RUNNER_TEMP/test-app/src/TestApp/Rust.Generated.cs"
 
   publish-nuget:
     name: Publish to NuGet.org
