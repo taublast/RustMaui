@@ -70,7 +70,11 @@ Package docs: [src/RustMaui.Templates/README.md](src/RustMaui.Templates/README.m
 
 ---
 
-## Development
+## Contribute
+
+Please feel free to bring in your works, we need you!
+
+### Development Commands
 
 Pack all three packages:
 
