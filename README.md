@@ -1,8 +1,11 @@
+
 # RustMaui
 
 RustMaui brings .NET MAUI and Rust together through three entry points: a `dotnet tool` for new and existing apps, a build-time generator package, and an optional `dotnet new` template package.
 
 Use it to scaffold a MAUI app with a Rust native library already wired into the normal .NET build, or to retrofit an existing MAUI app with the same Rust build targets and generated bindings.
+
+<img width="800" height="533" alt="rustyammy" src="https://github.com/user-attachments/assets/6869bd41-22d9-4193-b2fa-48552593f8ed" />
 
 ## Packages
 
