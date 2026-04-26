@@ -9,6 +9,8 @@ Workflow file:
 
 - `.github/workflows/nuget-release.yml`
 
+This is the release flow for the combined repo. Both packages are packed from the same workspace and published from one shared artifact set.
+
 ## What the workflow does
 
 The workflow is manual and has three jobs:
@@ -30,6 +32,8 @@ The pack job creates one artifact named `nuget-packages`. Both publish jobs cons
 
 GitHub Packages publishing uses the built-in `secrets.GITHUB_TOKEN` and requires the package to be connected to the same repository that runs the workflow.
 
+Both package projects should keep their `RepositoryUrl` pointed at the combined repository before relying on GitHub Packages metadata.
+
 ## How to run
 
 1. Open `Actions`.
@@ -48,5 +52,5 @@ Recommended first validation:
 ## Maintenance notes
 
 - If package project paths move, update the explicit project list in the workflow.
-- Keep both package `RepositoryUrl` values pointed at the current repository before relying on GitHub Packages publishing.
+- Keep the template scaffold pointing at `Community.MauiRust.Generators`; do not let dotnet template name replacement rewrite that package ID.
 - If GitHub Packages returns `403 Forbidden`, first verify the package is linked to this repository.

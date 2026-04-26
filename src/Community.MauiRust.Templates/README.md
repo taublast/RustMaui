@@ -3,6 +3,8 @@
 `dotnet new` templates for .NET MAUI apps with a Rust native library wired into MSBuild.
 The template consumes `Community.MauiRust.Generators` so the generated app gets both the Rust build targets and the automatic `Rust.Generated.cs` bindings.
 
+This package now lives in the combined `Community.MauiRust` repo alongside the generator package.
+
 ## For users
 
 Install:
@@ -36,29 +38,45 @@ src/Community.MauiRust.Templates/
 └── content/
     └── MauiRust/
         ├── .template.config/
+        ├── check-prerequisites.ps1
+        ├── check-prerequisites.sh
         ├── MauiRust.sln
-        ├── src/
+        ├── Prerequisites.md
         ├── app/
-        └── rust/
+        ├── rust/
+        └── src/
 ```
 
 The `sourceName = "MauiRust"` setting in `template.json` replaces `MauiRust` across file names, directories, and source content when a user runs `dotnet new maui-rust -n MyApp`.
+Package IDs that must stay fixed, such as `Community.MauiRust.Generators`, are emitted through dedicated template tokens instead of raw `sourceName` replacement.
 
 ## Local development
 
-Pack the template package:
+Pack both packages:
 
-```bash
+```powershell
+.\eng\pack-all.ps1
+```
+
+Pack only the template package:
+
+```powershell
 dotnet pack src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj -c Release -o artifacts/nupkg
 ```
 
 Install the local template package:
 
-```bash
-dotnet new install ./artifacts/nupkg/Community.MauiRust.Templates.1.0.0-pre4.nupkg
+```powershell
+dotnet new install .\artifacts\nupkg\Community.MauiRust.Templates.<version>.nupkg
 ```
 
-If you want to fully validate a generated project from this repo, also pack `Community.MauiRust.Generators` and add `artifacts/nupkg` as a local NuGet source before building the generated app.
+Fully validate the generated project from this repo:
+
+```powershell
+.\eng\validate-template.ps1
+```
+
+That script packs both packages, installs the local template package, adds the local package folder as a NuGet source, generates a temporary app, and builds the generated Windows project.
 
 ## Publishing
 

@@ -1,9 +1,11 @@
 # Community.MauiRust
 
-Monorepo for the two NuGet packages that make up the current MAUI + Rust experience:
+This repository now carries both NuGet packages that make up the MAUI + Rust workflow:
 
 - `Community.MauiRust.Generators`: build-time package that discovers Rust exports, generates `Rust.Generated.cs`, and wires Rust native build targets.
 - `Community.MauiRust.Templates`: `dotnet new` template package that scaffolds a MAUI app already configured to use the generator package.
+
+The local folder is still `MauiRust.Templates` for now. The intended repository identity is `Community.MauiRust` once the remote rename is done.
 
 ## Repository layout
 
@@ -17,7 +19,7 @@ Community.MauiRust/
 ├── eng/
 ├── nugets/
 ├── src/
-│   └── Community.MauiRust.Generators/
+│   ├── Community.MauiRust.Generators/
 │   └── Community.MauiRust.Templates/
 ```
 
@@ -33,7 +35,24 @@ Community.MauiRust/
 
 - ships the `dotnet new maui-rust` template
 - carries the scaffold under `src/Community.MauiRust.Templates/content/MauiRust`
-- references the generator package version in the scaffolded app
+- emits a scaffolded app that references `Community.MauiRust.Generators`
+
+## Generated template shape
+
+The template produces a repo with this top-level layout:
+
+```text
+MyApp/
+├── MauiRust.sln
+├── check-prerequisites.ps1
+├── check-prerequisites.sh
+├── Prerequisites.md
+├── app/
+├── rust/
+└── src/
+```
+
+The generated app project lives under `src/<AppName>/<AppName>.csproj`.
 
 ## Local commands
 
@@ -55,4 +74,6 @@ Validate the template against locally packed packages:
 .\eng\validate-template.ps1
 ```
 
-See `nugets/nugets.md` for the GitHub Actions release workflow and secrets.
+That validator packs both packages, installs the local template package, generates a temporary app outside the repo tree, adds the local package folder as a NuGet source, and runs a Windows build against the generated app.
+
+See `nugets/nugets.md` for the shared GitHub Actions release workflow and required secrets.

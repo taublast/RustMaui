@@ -1,6 +1,6 @@
 # Community.MauiRust.Generators
 
-Roslyn-assisted build package for [.NET MAUI + Rust](https://github.com/taublast/Community.MauiRust) projects.
+Build-time package for [.NET MAUI + Rust](https://github.com/taublast/Community.MauiRust) projects.
 
 Reads your `rust/lib.rs`, finds every `#[no_mangle] pub extern "C" fn`, and generates matching `[LibraryImport]` P/Invoke bindings into `Rust.Generated.cs` — automatically, on every build.
 
@@ -52,7 +52,7 @@ If the generator cannot map a Rust type to C#, it emits a TODO comment instead o
 
 ### Installed via Community.MauiRust.Templates
 
-Zero config. The template includes the generator and pre-wires `RustCrateDir`.
+Zero config. The template package includes the generator and emits a fixed `Community.MauiRust.Generators` package reference in the scaffolded app.
 
 ### Manual install
 
@@ -102,3 +102,5 @@ build/Community.MauiRust.Generators.props
 ```
 
 The template package under `src/Community.MauiRust.Templates/` consumes this package.
+
+Both packages are released together from the combined repo via `.github/workflows/nuget-release.yml`.

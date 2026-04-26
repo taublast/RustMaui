@@ -1,5 +1,10 @@
 # Building
 
+This repo now builds and validates two packages together:
+
+- `Community.MauiRust.Generators`
+- `Community.MauiRust.Templates`
+
 ## Prerequisites
 
 - .NET SDK from `global.json`
@@ -20,6 +25,12 @@ Pack a single package:
 .\eng\pack.ps1 -Project src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj
 ```
 
+or:
+
+```powershell
+.\eng\pack.ps1 -Project src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj
+```
+
 ## Local template validation
 
 ```powershell
@@ -27,3 +38,5 @@ Pack a single package:
 ```
 
 That script packs both packages, installs the template from the local `.nupkg`, adds the local package folder as a NuGet source, creates a temporary test app, and runs a Windows build.
+
+The generated app is created outside the repo tree so root `Directory.Packages.props` does not leak into the smoke test.
