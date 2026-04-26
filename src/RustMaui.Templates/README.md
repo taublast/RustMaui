@@ -85,7 +85,6 @@ That script packs both packages, installs the local template package, adds the l
 
 The combined repo release workflow packs all three packages from one artifact set:
 
-- `Community.MauiRust`
 - `RustMaui`
 - `RustMaui.Generators`
 - `RustMaui.Templates`
