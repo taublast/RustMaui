@@ -7,8 +7,8 @@
 use std::os::raw::c_int;
 
 /// Returns the sum of `a` and `b`.
-/// Called from C# via P/Invoke — see NativeMethods in MainPage.xaml.cs.
+/// Called from C# via P/Invoke — see Rust.cs.
 #[no_mangle]
-pub extern "C" fn mauirustnativelib_add(a: c_int, b: c_int) -> c_int {
+pub extern "C" fn add(a: c_int, b: c_int) -> c_int {
     a + b
 }

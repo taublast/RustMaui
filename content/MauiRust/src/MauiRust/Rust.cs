@@ -13,7 +13,7 @@ public static partial class Rust
     //   iOS device   : statically linked into the app binary (see csproj)
     private const string Lib = "mauirustnativelib_native";
 
-    [LibraryImport(Lib, EntryPoint = "mauirustnativelib_add")]
+    [LibraryImport(Lib, EntryPoint = "add")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
     public static partial int Add(int a, int b);
 }
