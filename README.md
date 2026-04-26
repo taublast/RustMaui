@@ -21,6 +21,8 @@ It's a combination of cross-platform Rust build support and bindings generators 
 - Automatic build-time Rust bindings generation
 - Optional `dotnet new` template for new projects
 
+Read [the article behind this project](https://taublast.github.io/posts/MauiRust/)
+
 ## Quick Start
 
 ### Install the tool
