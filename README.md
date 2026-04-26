@@ -8,8 +8,6 @@ This project brings:
 - a build-time bindings generator package
 - an optional `dotnet new` template package.
 
-<img width="800" height="533" alt="rustyammy" src="https://github.com/user-attachments/assets/6869bd41-22d9-4193-b2fa-48552593f8ed" />
-
 ## Packages
 
 ### `RustMaui`
@@ -69,3 +67,6 @@ That validator packs all three packages, installs the local template package, ge
 The template remains available, but the preferred install path for end users is `dotnet tool install --global RustMaui`.
 
 See [`nugets.md`](./nugets/nugets.md) for the shared GitHub Actions release workflow and required secrets.
+
+
+<img width="800" height="533" alt="rustyammy" src="https://github.com/user-attachments/assets/6869bd41-22d9-4193-b2fa-48552593f8ed" />
