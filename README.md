@@ -1,12 +1,39 @@
+<div align="center">
 
 # RustMaui
 
-Use Rust language seamlessly inside .NET MAUI apps.
+**Rust superpowers for .NET MAUI** 🍬🌴
 
-Toolbox:
-- a `dotnet tool` for new and existing apps
-- a build-time bindings generator package
-- an optional `dotnet new` template package.
+<img width="800" alt="RustMaui" src="https://github.com/user-attachments/assets/6869bd41-22d9-4193-b2fa-48552593f8ed" />
+
+</div>
+
+---
+
+**RustMaui** brings the **performance, safety, and joy of Rust** directly into your .NET MAUI applications, includes everything you need:
+
+- A friendly `dotnet tool` for instant setup
+- Automatic build-time Rust bindings generation
+- Optional `dotnet new` template for new projects
+
+## Quick Start
+
+### Install the tool
+
+```bash
+dotnet tool install --global RustMaui
+```
+
+### Create a new MAUI + Rust app
+
+```bash
+rustmaui new MyAwesomeApp
+```
+### Or add Rust to an existing MAUI project
+
+```bash
+rustmaui init .
+```
 
 ## Packages
 
@@ -33,7 +60,7 @@ Package docs: [src/RustMaui.Generators/README.md](src/RustMaui.Generators/README
 
 ### `RustMaui.Templates`
 
-An optional `dotnet new` template package for new-app-only flows. It scaffolds a MAUI app already configured to use the generator package. See [package README](src/RustMaui.Templates/README.md).
+An optional `dotnet new` template package for new-app-only flows. It scaffolds a MAUI app already configured to use the generator package. 
 
 - ships the `dotnet new rustmaui` template
 - carries the scaffold under `src/RustMaui.Templates/content/MauiRust`
@@ -41,8 +68,9 @@ An optional `dotnet new` template package for new-app-only flows. It scaffolds a
 
 Package docs: [src/RustMaui.Templates/README.md](src/RustMaui.Templates/README.md)
 
+---
 
-## Local commands
+## Development
 
 Pack all three packages:
 
@@ -70,4 +98,4 @@ See [`nugets.md`](./nugets/nugets.md) for the shared GitHub Actions release work
 
 ---
 
-<img width="800" height="533" alt="rustyammy" src="https://github.com/user-attachments/assets/6869bd41-22d9-4193-b2fa-48552593f8ed" />
+ 
