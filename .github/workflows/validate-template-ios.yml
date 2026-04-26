@@ -1,4 +1,4 @@
-name: Validate Template on iOS
+﻿name: Validate Template on iOS
 
 on:
   workflow_dispatch:
@@ -28,10 +28,10 @@ jobs:
           targets: aarch64-apple-ios,aarch64-apple-ios-sim
 
       - name: Pack generator package
-        run: dotnet pack src/RustMaui.Generators/Community.MauiRust.Generators.csproj -c Release -o nupkg
+        run: dotnet pack src/RustMaui.Generators/RustMaui.Generators.csproj -c Release -o nupkg
 
       - name: Pack template package
-        run: dotnet pack src/RustMaui.Templates/Community.MauiRust.Templates.csproj -c Release -o nupkg -p:PackageVersion=0.0.0-ci
+        run: dotnet pack src/RustMaui.Templates/RustMaui.Templates.csproj -c Release -o nupkg -p:PackageVersion=0.0.0-ci
 
       - name: Add local package source
         shell: pwsh

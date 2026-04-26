@@ -1,4 +1,4 @@
-# RustMaui.Templates
+﻿# RustMaui.Templates
 
 `dotnet new` templates for .NET MAUI apps with a Rust native library wired into MSBuild.
 The template consumes `RustMaui.Generators` so the generated app gets both the Rust build targets and the automatic `Rust.Generated.cs` bindings.
@@ -36,7 +36,7 @@ Inside the combined `RustMaui` repo the template package lives here:
 
 ```text
 src/RustMaui.Templates/
-├── Community.MauiRust.Templates.csproj
+├── RustMaui.Templates.csproj
 ├── README.md
 └── content/
     └── MauiRust/
@@ -64,7 +64,7 @@ Pack all three packages:
 Pack only the template package:
 
 ```powershell
-dotnet pack src/RustMaui.Templates/Community.MauiRust.Templates.csproj -c Release -o artifacts/nupkg
+dotnet pack src/RustMaui.Templates/RustMaui.Templates.csproj -c Release -o artifacts/nupkg
 ```
 
 Install the local template package:

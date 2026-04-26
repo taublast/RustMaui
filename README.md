@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 # RustMaui
 
@@ -125,7 +125,7 @@ Pack all three packages:
 Pack one package:
 
 ```powershell
-.\dev\pack.ps1 -Project src/RustMaui.Generators/Community.MauiRust.Generators.csproj
+.\dev\pack.ps1 -Project src/RustMaui.Generators/RustMaui.Generators.csproj
 ```
 
 Validate the template against locally packed packages:

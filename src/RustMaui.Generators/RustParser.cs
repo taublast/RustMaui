@@ -1,8 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Community.MauiRust.Generators;
+namespace RustMaui.Generators;
 
 internal record RustExport(
     string Name,

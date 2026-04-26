@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\build\Community.MauiRust.Package.props" />
+  <Import Project="..\..\build\RustMaui.Package.props" />
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -15,14 +15,14 @@
     <DevelopmentDependency>true</DevelopmentDependency>
 
     <PackageId>RustMaui.Generators</PackageId>
-    <Version>$(CommunityMauiRustPackageVersion)</Version>
-    <Authors>$(CommunityMauiRustPackageAuthors)</Authors>
+    <Version>$(RustMauiPackageVersion)</Version>
+    <Authors>$(RustMauiPackageAuthors)</Authors>
     <Description>Roslyn source generator that reads Rust #[no_mangle] exports and auto-generates [LibraryImport] P/Invoke bindings into a partial Rust class. Skips any export already declared manually in Rust.cs.</Description>
     <PackageTags>maui;rust;ffi;p-invoke;source-generator;interop</PackageTags>
-    <PackageProjectUrl>$(CommunityMauiRustPackageProjectUrl)</PackageProjectUrl>
-    <RepositoryUrl>$(CommunityMauiRustRepositoryUrl)</RepositoryUrl>
-    <RepositoryType>$(CommunityMauiRustRepositoryType)</RepositoryType>
-    <PackageLicenseExpression>$(CommunityMauiRustPackageLicenseExpression)</PackageLicenseExpression>
+    <PackageProjectUrl>$(RustMauiPackageProjectUrl)</PackageProjectUrl>
+    <RepositoryUrl>$(RustMauiRepositoryUrl)</RepositoryUrl>
+    <RepositoryType>$(RustMauiRepositoryType)</RepositoryType>
+    <PackageLicenseExpression>$(RustMauiPackageLicenseExpression)</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -36,7 +36,7 @@
     <None Include="$(OutputPath)\$(AssemblyName).dll"
           Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="README.md" Pack="true" PackagePath="\" />
-    <None Include="..\..\build\Community.MauiRust.Generators.targets"
+    <None Include="..\..\build\RustMaui.Generators.targets"
         Pack="true" PackagePath="build\RustMaui.Generators.targets" />
   </ItemGroup>
 

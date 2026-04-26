@@ -1,4 +1,4 @@
-name: Validate Template on Android
+﻿name: Validate Template on Android
 
 on:
   workflow_dispatch:
@@ -41,10 +41,10 @@ jobs:
           echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/27.2.12479018" >> "$GITHUB_ENV"
 
       - name: Pack generator package
-        run: dotnet pack src/RustMaui.Generators/Community.MauiRust.Generators.csproj -c Release -o nupkg
+        run: dotnet pack src/RustMaui.Generators/RustMaui.Generators.csproj -c Release -o nupkg
 
       - name: Pack template package
-        run: dotnet pack src/RustMaui.Templates/Community.MauiRust.Templates.csproj -c Release -o nupkg -p:PackageVersion=0.0.0-ci
+        run: dotnet pack src/RustMaui.Templates/RustMaui.Templates.csproj -c Release -o nupkg -p:PackageVersion=0.0.0-ci
 
       - name: Add local package source
         shell: pwsh

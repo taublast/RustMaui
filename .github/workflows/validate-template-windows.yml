@@ -1,4 +1,4 @@
-name: Validate Template on Windows
+﻿name: Validate Template on Windows
 
 on:
   workflow_dispatch:
@@ -22,11 +22,11 @@ jobs:
 
       - name: Pack generator package
         shell: bash
-        run: dotnet pack src/RustMaui.Generators/Community.MauiRust.Generators.csproj -c Release -o nupkg
+        run: dotnet pack src/RustMaui.Generators/RustMaui.Generators.csproj -c Release -o nupkg
 
       - name: Pack template package
         shell: bash
-        run: dotnet pack src/RustMaui.Templates/Community.MauiRust.Templates.csproj -c Release -o nupkg -p:PackageVersion=0.0.0-ci
+        run: dotnet pack src/RustMaui.Templates/RustMaui.Templates.csproj -c Release -o nupkg -p:PackageVersion=0.0.0-ci
 
       - name: Add local package source
         shell: pwsh

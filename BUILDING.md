@@ -1,4 +1,4 @@
-# Building
+﻿# Building
 
 This repo now builds and validates three packages together:
 
@@ -23,13 +23,13 @@ Pack all NuGet packages to `artifacts/nupkg`:
 Pack a single package:
 
 ```powershell
-.\dev\pack.ps1 -Project src/RustMaui.Templates/Community.MauiRust.Templates.csproj
+.\dev\pack.ps1 -Project src/RustMaui.Templates/RustMaui.Templates.csproj
 ```
 
 or:
 
 ```powershell
-.\dev\pack.ps1 -Project src/RustMaui.Generators/Community.MauiRust.Generators.csproj
+.\dev\pack.ps1 -Project src/RustMaui.Generators/RustMaui.Generators.csproj
 ```
 
 ## Local template validation

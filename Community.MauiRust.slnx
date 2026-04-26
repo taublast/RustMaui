@@ -1,7 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/RustMaui.Generators/Community.MauiRust.Generators.csproj" />
-    <Project Path="src/RustMaui.Templates/Community.MauiRust.Templates.csproj" />
-    <Project Path="src/RustMaui.Tool/Community.MauiRust.Tool.csproj" />
-  </Folder>
-</Solution>

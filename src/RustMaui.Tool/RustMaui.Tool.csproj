@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\build\Community.MauiRust.Package.props" />
+  <Import Project="..\..\build\RustMaui.Package.props" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,14 +10,14 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>rustmaui</ToolCommandName>
     <PackageId>RustMaui</PackageId>
-    <Version>$(CommunityMauiRustPackageVersion)</Version>
-    <Authors>$(CommunityMauiRustPackageAuthors)</Authors>
+    <Version>$(RustMauiPackageVersion)</Version>
+    <Authors>$(RustMauiPackageAuthors)</Authors>
     <Description>.NET tool for RustMaui that creates new .NET MAUI + Rust apps from the shared scaffold and retrofits existing MAUI apps to use RustMaui.Generators.</Description>
     <PackageTags>maui;rust;tool;dotnet-tool;template;interop</PackageTags>
-    <PackageLicenseExpression>$(CommunityMauiRustPackageLicenseExpression)</PackageLicenseExpression>
-    <PackageProjectUrl>$(CommunityMauiRustPackageProjectUrl)</PackageProjectUrl>
-    <RepositoryUrl>$(CommunityMauiRustRepositoryUrl)</RepositoryUrl>
-    <RepositoryType>$(CommunityMauiRustRepositoryType)</RepositoryType>
+    <PackageLicenseExpression>$(RustMauiPackageLicenseExpression)</PackageLicenseExpression>
+    <PackageProjectUrl>$(RustMauiPackageProjectUrl)</PackageProjectUrl>
+    <RepositoryUrl>$(RustMauiRepositoryUrl)</RepositoryUrl>
+    <RepositoryType>$(RustMauiRepositoryType)</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
@@ -28,8 +28,8 @@
              Link="Scaffold\%(RecursiveDir)%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest"
              CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\..\build\Community.MauiRust.Package.props"
-             Link="Config\Community.MauiRust.Package.props"
+    <Content Include="..\..\build\RustMaui.Package.props"
+             Link="Config\RustMaui.Package.props"
              CopyToOutputDirectory="PreserveNewest"
              CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>

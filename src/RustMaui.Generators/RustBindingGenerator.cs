@@ -1,6 +1,6 @@
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 
-namespace Community.MauiRust.Generators;
+namespace RustMaui.Generators;
 
 [Generator]
 public class RustBindingGenerator : IIncrementalGenerator

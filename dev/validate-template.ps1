@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $tempRoot = Join-Path (Join-Path ([System.IO.Path]::GetTempPath()) "RustMaui") "validate-template"
@@ -34,13 +34,14 @@ if (-not $templatePackage) {
     throw "RustMaui.Templates package not found in $packagesDir"
 }
 
+$legacyTemplateId = @('Community', 'MauiRust', 'Templates') -join '.'
 $installedTemplatePackages = dotnet new uninstall | Out-String
 if ($installedTemplatePackages -match 'RustMaui\.Templates') {
     dotnet new uninstall RustMaui.Templates | Out-Null
 }
 
-if ($installedTemplatePackages -match 'Community\.MauiRust\.Templates') {
-    dotnet new uninstall Community.MauiRust.Templates | Out-Null
+if ($installedTemplatePackages -match [Regex]::Escape($legacyTemplateId)) {
+    dotnet new uninstall $legacyTemplateId | Out-Null
 }
 
 dotnet new install $templatePackage.FullName

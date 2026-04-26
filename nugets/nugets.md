@@ -1,4 +1,4 @@
-# NuGet CI/CD
+﻿# NuGet CI/CD
 
 This repo publishes three packages from one manual workflow:
 
@@ -32,9 +32,9 @@ The pack job creates one artifact named `nuget-packages`. Both publish jobs cons
 
 ## Packed project list
 
-- `src/RustMaui.Tool/Community.MauiRust.Tool.csproj`
-- `src/RustMaui.Generators/Community.MauiRust.Generators.csproj`
-- `src/RustMaui.Templates/Community.MauiRust.Templates.csproj`
+- `src/RustMaui.Tool/RustMaui.Tool.csproj`
+- `src/RustMaui.Generators/RustMaui.Generators.csproj`
+- `src/RustMaui.Templates/RustMaui.Templates.csproj`
 
 ## Required secrets
 

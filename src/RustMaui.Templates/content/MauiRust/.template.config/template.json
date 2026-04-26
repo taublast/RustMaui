@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "http://json.schemastore.org/template",
   "author": "Nick Kovalsky",
   "classifications": ["MAUI", "Rust", "Mobile", "Cross-Platform"],

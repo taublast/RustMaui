@@ -1,8 +1,8 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 
-namespace Community.MauiRust.Tool;
+namespace RustMaui.Tool;
 
 internal static class Program
 {
@@ -204,13 +204,13 @@ internal static class Program
 
     private static string GetSharedPackageVersion()
     {
-        var configPath = Path.Combine(AppContext.BaseDirectory, "Config", "Community.MauiRust.Package.props");
+        var configPath = Path.Combine(AppContext.BaseDirectory, "Config", "RustMaui.Package.props");
         var document = XDocument.Load(configPath);
         return document.Root?
-            .Descendants("CommunityMauiRustPackageVersion")
+            .Descendants("RustMauiPackageVersion")
             .Select(element => element.Value.Trim())
             .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))
-            ?? throw new InvalidOperationException($"Could not read CommunityMauiRustPackageVersion from {configPath}");
+            ?? throw new InvalidOperationException($"Could not read RustMauiPackageVersion from {configPath}");
     }
 
     private static string GetScaffoldRoot()

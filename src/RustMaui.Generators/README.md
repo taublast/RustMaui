@@ -1,4 +1,4 @@
-# RustMaui.Generators
+﻿# RustMaui.Generators
 
 Build-time package for [.NET MAUI + Rust](https://github.com/taublast/RustMaui) projects.
 
@@ -123,8 +123,8 @@ Inside the combined `RustMaui` repo the package lives here:
 
 ```text
 src/RustMaui.Generators/
-build/Community.MauiRust.Generators.targets
-build/Community.MauiRust.Generators.props
+build/RustMaui.Generators.targets
+build/RustMaui.Generators.props
 ```
 
 The template package under `src/RustMaui.Templates/` consumes this package.
