@@ -53,16 +53,14 @@ MyApp/
 │       ├── AppShell.xaml
 │       ├── MainPage.xaml
 │       ├── MainPage.xaml.cs
-│       ├── Rust.cs
-│       ├── Rust.Generated.cs
+│       ├── Rust.cs <--  override bindings
+│       ├── Rust.Generated.cs <--  auto-generated bindings
 │       └── MauiRust.csproj
 ├── rust/
 │   ├── Cargo.toml
-│   └── lib.rs
+│   └── lib.rs <--  add Rust code here or add more `.rs` files
 └── MyApp.sln
 ```
-
-`Rust.Generated.cs` contains auto-generated Rust bindings, while `Rust.cs` is a user-controlled file for custom bindings. Can change the name if needed.
 
 ### Build
 
