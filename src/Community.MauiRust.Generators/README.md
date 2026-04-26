@@ -54,6 +54,16 @@ If the generator cannot map a Rust type to C#, it emits a TODO comment instead o
 
 Zero config. The template package includes the generator and emits a fixed `Community.MauiRust.Generators` package reference in the scaffolded app.
 
+### Install into an existing app from NuGet
+
+You can also add the package to an existing MAUI project with the CLI:
+
+```bash
+dotnet add package Community.MauiRust.Generators
+```
+
+After that, make sure your project follows the expected layout or set the relevant MSBuild overrides shown below.
+
 ### Manual install
 
 ```xml
@@ -67,12 +77,25 @@ The package reads `rust/Cargo.toml` to infer the native library name and writes 
 
 The package also wires the build-time generation logic from the repo-level `build/Community.MauiRust.Generators.targets` file. `RustCrateDir` defaults to the template layout, but you can override it.
 
-For a custom layout set `RustGeneratorSrcDir` or `RustLibName` in your app project:
+### Optional MSBuild properties
+
+The package works with no required properties in template-generated projects, but it supports these optional overrides in your app `.csproj`:
+
+- `RustCrateDir`: path to the Rust crate root; defaults to the template convention `../../rust`
+- `RustLibName`: native library name; auto-read from `Cargo.toml` `[package].name` if not set
+- `RustProfile`: Cargo profile to build with; defaults to `release`
+- `RustCargoToolchainArgs`: extra toolchain selector arguments such as `+nightly`
+- `RustGeneratorSrcDir`: override path for `lib.rs` when it is not under `$(RustCrateDir)`
+- `RustGeneratedFile`: override output path for `Rust.Generated.cs`
+
+For example, with a custom layout:
 
 ```xml
 <PropertyGroup>
+  <RustCrateDir>..\..\native\mycrate</RustCrateDir>
   <RustGeneratorSrcDir>..\..\rust</RustGeneratorSrcDir>
   <RustLibName>your_crate_name</RustLibName>
+  <RustProfile>release</RustProfile>
 </PropertyGroup>
 ```
 
