@@ -55,7 +55,7 @@ Package IDs that must stay fixed, such as `Community.MauiRust.Generators`, are e
 Pack both packages:
 
 ```powershell
-.\eng\pack-all.ps1
+.\dev\pack-all.ps1
 ```
 
 Pack only the template package:
@@ -73,7 +73,7 @@ dotnet new install .\artifacts\nupkg\Community.MauiRust.Templates.<version>.nupk
 Fully validate the generated project from this repo:
 
 ```powershell
-.\eng\validate-template.ps1
+.\dev\validate-template.ps1
 ```
 
 That script packs both packages, installs the local template package, adds the local package folder as a NuGet source, generates a temporary app, and builds the generated Windows project.

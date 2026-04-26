@@ -33,19 +33,19 @@ Package docs: [src/Community.MauiRust.Templates/README.md](src/Community.MauiRus
 Pack both packages:
 
 ```powershell
-.\eng\pack-all.ps1
+.\dev\pack-all.ps1
 ```
 
 Pack one package:
 
 ```powershell
-.\eng\pack.ps1 -Project src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj
+.\dev\pack.ps1 -Project src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj
 ```
 
 Validate the template against locally packed packages:
 
 ```powershell
-.\eng\validate-template.ps1
+.\dev\validate-template.ps1
 ```
 
 That validator packs both packages, installs the local template package, generates a temporary app outside the repo tree, adds the local package folder as a NuGet source, and runs a Windows build against the generated app.

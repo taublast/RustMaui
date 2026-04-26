@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\..\build\Community.MauiRust.Package.props" />
+
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
@@ -13,14 +15,14 @@
     <DevelopmentDependency>true</DevelopmentDependency>
 
     <PackageId>Community.MauiRust.Generators</PackageId>
-    <Version>1.0.0-pre10</Version>
-    <Authors>Nick Kovalsky</Authors>
+    <Version>$(CommunityMauiRustPackageVersion)</Version>
+    <Authors>$(CommunityMauiRustPackageAuthors)</Authors>
     <Description>Roslyn source generator that reads Rust #[no_mangle] exports and auto-generates [LibraryImport] P/Invoke bindings into a partial Rust class. Skips any export already declared manually in Rust.cs.</Description>
     <PackageTags>maui;rust;ffi;p-invoke;source-generator;interop</PackageTags>
-    <PackageProjectUrl>https://github.com/taublast/Community.MauiRust</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/taublast/Community.MauiRust</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>$(CommunityMauiRustPackageProjectUrl)</PackageProjectUrl>
+    <RepositoryUrl>$(CommunityMauiRustRepositoryUrl)</RepositoryUrl>
+    <RepositoryType>$(CommunityMauiRustRepositoryType)</RepositoryType>
+    <PackageLicenseExpression>$(CommunityMauiRustPackageLicenseExpression)</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 

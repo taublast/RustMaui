@@ -1,17 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\..\build\Community.MauiRust.Package.props" />
+
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <PackageVersion>1.0.0-pre4</PackageVersion>
+    <PackageVersion>$(CommunityMauiRustPackageVersion)</PackageVersion>
     <PackageId>Community.MauiRust.Templates</PackageId>
     <Title>.NET MAUI + Rust Templates</Title>
-    <Authors>Nick Kovalsky aka AppoMobi and contributors</Authors>
+    <Authors>$(CommunityMauiRustPackageAuthors)</Authors>
     <Description>Project templates for .NET MAUI apps with a Rust native library integrated via MSBuild. Press F5 — Rust builds automatically alongside C#, on Windows, Android, iOS, and MacCatalyst.</Description>
     <PackageTags>dotnet;maui;rust;template;native;cross-platform;android;ios</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/taublast/Community.MauiRust</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/taublast/Community.MauiRust</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>$(CommunityMauiRustPackageLicenseExpression)</PackageLicenseExpression>
+    <PackageProjectUrl>$(CommunityMauiRustPackageProjectUrl)</PackageProjectUrl>
+    <RepositoryUrl>$(CommunityMauiRustRepositoryUrl)</RepositoryUrl>
+    <RepositoryType>$(CommunityMauiRustRepositoryType)</RepositoryType>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>

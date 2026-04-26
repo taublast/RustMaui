@@ -16,25 +16,25 @@ This repo now builds and validates two packages together:
 Pack both NuGet packages to `artifacts/nupkg`:
 
 ```powershell
-.\eng\pack-all.ps1
+.\dev\pack-all.ps1
 ```
 
 Pack a single package:
 
 ```powershell
-.\eng\pack.ps1 -Project src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj
+.\dev\pack.ps1 -Project src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj
 ```
 
 or:
 
 ```powershell
-.\eng\pack.ps1 -Project src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj
+.\dev\pack.ps1 -Project src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj
 ```
 
 ## Local template validation
 
 ```powershell
-.\eng\validate-template.ps1
+.\dev\validate-template.ps1
 ```
 
 That script packs both packages, installs the template from the local `.nupkg`, adds the local package folder as a NuGet source, creates a temporary test app, and runs a Windows build.
