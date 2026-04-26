@@ -1,5 +1,6 @@
 bin/
 obj/
+target/
 *.nupkg
 *.snupkg
 artifacts/
