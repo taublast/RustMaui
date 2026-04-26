@@ -3,7 +3,10 @@
 
 Use Rust language seamelessly inside .NET MAUI apps.
 
-RustMaui brings a `dotnet tool` for new and existing apps, a build-time bindings generator package, and an optional `dotnet new` template package.
+This project brings:
+- a `dotnet tool` for new and existing apps
+- a build-time bindings generator package
+- an optional `dotnet new` template package.
 
 <img width="800" height="533" alt="rustyammy" src="https://github.com/user-attachments/assets/6869bd41-22d9-4193-b2fa-48552593f8ed" />
 
