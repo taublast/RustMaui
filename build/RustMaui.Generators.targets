@@ -551,6 +551,8 @@
     <RustCargoToolchainArgs Condition="'$(RustCargoToolchainArgs)' != ''">$(RustCargoToolchainArgs) </RustCargoToolchainArgs>
     <RustOutputDir>$(RustCrateDir)\target\$(RustTargetTriple)\$(RustProfile)</RustOutputDir>
     <RustOutputFile>$(RustOutputDir)\$(RustNativeFileName)</RustOutputFile>
+    <RustAppleStaticOutputFile>$(RustOutputDir)\lib$(RustLibName).a</RustAppleStaticOutputFile>
+    <RustAppleStaticDepsOutputFile>$(RustOutputDir)\deps\lib$(RustLibName).a</RustAppleStaticDepsOutputFile>
     <RustAppleStaticOutputPattern>$(RustOutputDir)\deps\lib$(RustLibName)-*.a</RustAppleStaticOutputPattern>
     <RustCargoCheckCommand Condition=" $([MSBuild]::IsOSPlatform('windows'))">where cargo &gt;nul 2&gt;nul</RustCargoCheckCommand>
     <RustCargoCheckCommand Condition="!$([MSBuild]::IsOSPlatform('windows'))">command -v cargo &gt;/dev/null 2&gt;&amp;1</RustCargoCheckCommand>
@@ -609,7 +611,19 @@
   <Target Name="AddRustNativeIosContent" AfterTargets="BuildRustNative" BeforeTargets="CollectNativeReferences"
           Condition="$(TargetFramework.Contains('-ios')) and !$(TargetFramework.Contains('-maccatalyst')) and '$(RustCrateDir)' != ''">
     <ItemGroup>
-      <NativeReference Include="$(RustAppleStaticOutputPattern)">
+      <NativeReference Include="$(RustAppleStaticOutputFile)" Condition="Exists('$(RustAppleStaticOutputFile)')">
+        <Kind>Static</Kind>
+        <ForceLoad>True</ForceLoad>
+        <SmartLink>False</SmartLink>
+      </NativeReference>
+      <NativeReference Include="$(RustAppleStaticDepsOutputFile)"
+                       Condition="!Exists('$(RustAppleStaticOutputFile)') and Exists('$(RustAppleStaticDepsOutputFile)')">
+        <Kind>Static</Kind>
+        <ForceLoad>True</ForceLoad>
+        <SmartLink>False</SmartLink>
+      </NativeReference>
+      <NativeReference Include="$(RustAppleStaticOutputPattern)"
+                       Condition="!Exists('$(RustAppleStaticOutputFile)') and !Exists('$(RustAppleStaticDepsOutputFile)')">
         <Kind>Static</Kind>
         <ForceLoad>True</ForceLoad>
         <SmartLink>False</SmartLink>
