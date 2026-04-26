@@ -1,36 +1,46 @@
-# Community.MauiRust
+# RustMaui
 
-Community.MauiRust brings .NET MAUI and Rust together through two NuGet packages: a build-time generator package and a `dotnet new` template package.
+RustMaui brings .NET MAUI and Rust together through three entry points: a `dotnet tool` for new and existing apps, a build-time generator package, and an optional `dotnet new` template package.
 
-Use it to scaffold a MAUI app with a Rust native library already wired into the normal .NET build, with generated bindings and native build targets handled for you.
+Use it to scaffold a MAUI app with a Rust native library already wired into the normal .NET build, or to retrofit an existing MAUI app with the same Rust build targets and generated bindings.
 
 ## Packages
 
-### `Community.MauiRust.Generators`
+### `RustMaui`
+
+The primary entry point: a .NET tool for both greenfield and existing-app setup.
+
+- install with `dotnet tool install --global RustMaui`
+- run `rustmaui new MyApp` to create a new app from the shared scaffold
+- run `rustmaui init path/to/MyApp.csproj` to add Rust boilerplate and `RustMaui.Generators` to an existing app
+
+Package docs: [src/RustMaui.Tool/README.md](src/RustMaui.Tool/README.md).
+
+### `RustMaui.Generators`
  
  Build-time package that discovers Rust exports, generates `Rust.Generated.cs`, and wires Rust native build targets. 
  
 - ships the generator/build package
-- packs `build/Community.MauiRust.Generators.targets`
+- packs `build/RustMaui.Generators.targets`
 - produces the analyzer/build assets consumed by MAUI apps
 
- Package docs: [src/Community.MauiRust.Generators/README.md](src/Community.MauiRust.Generators/README.md).
+ Package docs: [src/RustMaui.Generators/README.md](src/RustMaui.Generators/README.md).
 
 
-### `Community.MauiRust.Templates`
+### `RustMaui.Templates`
 
-A `dotnet new` template package that scaffolds a MAUI app already configured to use the generator package. See [package README](src/Community.MauiRust.Templates/README.md).
+An optional `dotnet new` template package for new-app-only flows. It scaffolds a MAUI app already configured to use the generator package. See [package README](src/RustMaui.Templates/README.md).
 
-- ships the `dotnet new maui-rust` template
-- carries the scaffold under `src/Community.MauiRust.Templates/content/MauiRust`
-- emits a scaffolded app that references `Community.MauiRust.Generators`
+- ships the `dotnet new rustmaui` template
+- carries the scaffold under `src/RustMaui.Templates/content/MauiRust`
+- emits a scaffolded app that references `RustMaui.Generators`
 
-Package docs: [src/Community.MauiRust.Templates/README.md](src/Community.MauiRust.Templates/README.md)
+Package docs: [src/RustMaui.Templates/README.md](src/RustMaui.Templates/README.md)
 
 
 ## Local commands
 
-Pack both packages:
+Pack all three packages:
 
 ```powershell
 .\dev\pack-all.ps1
@@ -39,7 +49,7 @@ Pack both packages:
 Pack one package:
 
 ```powershell
-.\dev\pack.ps1 -Project src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj
+.\dev\pack.ps1 -Project src/RustMaui.Generators/Community.MauiRust.Generators.csproj
 ```
 
 Validate the template against locally packed packages:
@@ -48,6 +58,8 @@ Validate the template against locally packed packages:
 .\dev\validate-template.ps1
 ```
 
-That validator packs both packages, installs the local template package, generates a temporary app outside the repo tree, adds the local package folder as a NuGet source, and runs a Windows build against the generated app.
+That validator packs all three packages, installs the local template package, generates a temporary app outside the repo tree, reuses the local package folder as a NuGet source, and runs a Windows build against the generated app.
+
+The template remains available, but the preferred install path for end users is `dotnet tool install --global RustMaui`.
 
 See [`nugets.md`](./nugets/nugets.md) for the shared GitHub Actions release workflow and required secrets.

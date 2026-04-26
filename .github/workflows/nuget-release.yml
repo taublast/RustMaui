@@ -52,8 +52,9 @@ jobs:
         shell: pwsh
         run: |
           $projects = @(
-            'src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj'
-            'src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj'
+            'src/RustMaui.Tool/Community.MauiRust.Tool.csproj'
+            'src/RustMaui.Generators/Community.MauiRust.Generators.csproj'
+            'src/RustMaui.Templates/Community.MauiRust.Templates.csproj'
           )
 
           foreach ($project in $projects) {
@@ -134,28 +135,28 @@ jobs:
       - name: Add local package source
         shell: pwsh
         run: |
-          dotnet nuget remove source community-mauirust-local 2>$null
-          dotnet nuget add source (Resolve-Path 'artifacts/nuget-packages') --name community-mauirust-local
+          dotnet nuget remove source rustmaui-local 2>$null
+          dotnet nuget add source (Resolve-Path 'artifacts/nuget-packages') --name rustmaui-local
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Install template
         shell: pwsh
         run: |
-          $templatePackage = Get-ChildItem 'artifacts/nuget-packages/Community.MauiRust.Templates.*.nupkg' |
+          $templatePackage = Get-ChildItem 'artifacts/nuget-packages/RustMaui.Templates.*.nupkg' |
             Sort-Object Name -Descending |
             Select-Object -First 1
 
           if (-not $templatePackage) {
-            throw 'Community.MauiRust.Templates package not found in downloaded artifacts.'
+            throw 'RustMaui.Templates package not found in downloaded artifacts.'
           }
 
-          dotnet new uninstall Community.MauiRust.Templates 2>$null
+          dotnet new uninstall RustMaui.Templates 2>$null
           dotnet new install $templatePackage.FullName
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Create test project
         shell: pwsh
-        run: dotnet new maui-rust -n TestApp -o "$env:RUNNER_TEMP/test-app"
+        run: dotnet new rustmaui -n TestApp -o "$env:RUNNER_TEMP/test-app"
 
       - name: Build Windows
         shell: pwsh
@@ -224,27 +225,27 @@ jobs:
       - name: Add local package source
         shell: pwsh
         run: |
-          dotnet nuget remove source community-mauirust-local 2>$null
-          dotnet nuget add source (Resolve-Path 'artifacts/nuget-packages') --name community-mauirust-local
+          dotnet nuget remove source rustmaui-local 2>$null
+          dotnet nuget add source (Resolve-Path 'artifacts/nuget-packages') --name rustmaui-local
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Install template
         shell: pwsh
         run: |
-          $templatePackage = Get-ChildItem 'artifacts/nuget-packages/Community.MauiRust.Templates.*.nupkg' |
+          $templatePackage = Get-ChildItem 'artifacts/nuget-packages/RustMaui.Templates.*.nupkg' |
             Sort-Object Name -Descending |
             Select-Object -First 1
 
           if (-not $templatePackage) {
-            throw 'Community.MauiRust.Templates package not found in downloaded artifacts.'
+            throw 'RustMaui.Templates package not found in downloaded artifacts.'
           }
 
-          dotnet new uninstall Community.MauiRust.Templates 2>$null
+          dotnet new uninstall RustMaui.Templates 2>$null
           dotnet new install $templatePackage.FullName
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Create test project
-        run: dotnet new maui-rust -n TestApp -o "$RUNNER_TEMP/test-app"
+        run: dotnet new rustmaui -n TestApp -o "$RUNNER_TEMP/test-app"
 
       - name: Build Android
         run: dotnet build "$RUNNER_TEMP/test-app/src/TestApp/TestApp.csproj" -f net10.0-android -p:ManagePackageVersionsCentrally=false
@@ -298,27 +299,27 @@ jobs:
       - name: Add local package source
         shell: pwsh
         run: |
-          dotnet nuget remove source community-mauirust-local 2>$null
-          dotnet nuget add source (Resolve-Path 'artifacts/nuget-packages') --name community-mauirust-local
+          dotnet nuget remove source rustmaui-local 2>$null
+          dotnet nuget add source (Resolve-Path 'artifacts/nuget-packages') --name rustmaui-local
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Install template
         shell: pwsh
         run: |
-          $templatePackage = Get-ChildItem 'artifacts/nuget-packages/Community.MauiRust.Templates.*.nupkg' |
+          $templatePackage = Get-ChildItem 'artifacts/nuget-packages/RustMaui.Templates.*.nupkg' |
             Sort-Object Name -Descending |
             Select-Object -First 1
 
           if (-not $templatePackage) {
-            throw 'Community.MauiRust.Templates package not found in downloaded artifacts.'
+            throw 'RustMaui.Templates package not found in downloaded artifacts.'
           }
 
-          dotnet new uninstall Community.MauiRust.Templates 2>$null
+          dotnet new uninstall RustMaui.Templates 2>$null
           dotnet new install $templatePackage.FullName
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Create test project
-        run: dotnet new maui-rust -n TestApp -o "$RUNNER_TEMP/test-app"
+        run: dotnet new rustmaui -n TestApp -o "$RUNNER_TEMP/test-app"
 
       - name: Build iOS simulator
         run: dotnet build "$RUNNER_TEMP/test-app/src/TestApp/TestApp.csproj" -f net10.0-ios -p:RuntimeIdentifier=iossimulator-arm64 -p:ManagePackageVersionsCentrally=false

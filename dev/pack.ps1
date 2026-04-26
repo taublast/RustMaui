@@ -13,7 +13,7 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $projectPath = Join-Path $repoRoot $Project
-$outputPath = Join-Path $repoRoot $Output
+$outputPath = if ([System.IO.Path]::IsPathRooted($Output)) { $Output } else { Join-Path $repoRoot $Output }
 
 if (-not (Test-Path $projectPath)) {
     throw "Project not found: $Project"

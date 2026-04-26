@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\build\Community.MauiRust.Package.props" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>rustmaui</ToolCommandName>
+    <PackageId>RustMaui</PackageId>
+    <Version>$(CommunityMauiRustPackageVersion)</Version>
+    <Authors>$(CommunityMauiRustPackageAuthors)</Authors>
+    <Description>.NET tool for RustMaui that creates new .NET MAUI + Rust apps from the shared scaffold and retrofits existing MAUI apps to use RustMaui.Generators.</Description>
+    <PackageTags>maui;rust;tool;dotnet-tool;template;interop</PackageTags>
+    <PackageLicenseExpression>$(CommunityMauiRustPackageLicenseExpression)</PackageLicenseExpression>
+    <PackageProjectUrl>$(CommunityMauiRustPackageProjectUrl)</PackageProjectUrl>
+    <RepositoryUrl>$(CommunityMauiRustRepositoryUrl)</RepositoryUrl>
+    <RepositoryType>$(CommunityMauiRustRepositoryType)</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+    <Content Include="..\RustMaui.Templates\content\MauiRust\**\*"
+         Exclude="..\RustMaui.Templates\content\MauiRust\.template.config\**\*;..\RustMaui.Templates\content\MauiRust\**\bin\**;..\RustMaui.Templates\content\MauiRust\**\obj\**;..\RustMaui.Templates\content\MauiRust\**\target\**;..\RustMaui.Templates\content\MauiRust\**\.vs\**;..\RustMaui.Templates\content\MauiRust\**\*.user"
+             Link="Scaffold\%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="..\..\build\Community.MauiRust.Package.props"
+             Link="Config\Community.MauiRust.Package.props"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

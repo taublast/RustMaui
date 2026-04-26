@@ -8,7 +8,7 @@ $globalPackagesRoot = Join-Path $HOME ".nuget\packages"
 Remove-Item $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
 
-& (Join-Path $PSScriptRoot "pack-all.ps1") -Output $packagesDir
+& (Join-Path $PSScriptRoot "pack-all-fixed.ps1") -Output $packagesDir
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

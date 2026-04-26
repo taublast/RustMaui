@@ -1,15 +1,16 @@
 # NuGet CI/CD
 
-This repo publishes two NuGet packages from one manual workflow:
+This repo publishes three packages from one manual workflow:
 
-- `Community.MauiRust.Generators`
-- `Community.MauiRust.Templates`
+- `RustMaui`
+- `RustMaui.Generators`
+- `RustMaui.Templates`
 
 Workflow file:
 
 - `.github/workflows/nuget-release.yml`
 
-This is the release flow for the combined repo. Both packages are packed from the same workspace and published from one shared artifact set.
+This is the release flow for the combined repo. All packages are packed from the same workspace and published from one shared artifact set.
 
 ## What the workflow does
 
@@ -31,8 +32,9 @@ The pack job creates one artifact named `nuget-packages`. Both publish jobs cons
 
 ## Packed project list
 
-- `src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj`
-- `src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj`
+- `src/RustMaui.Tool/Community.MauiRust.Tool.csproj`
+- `src/RustMaui.Generators/Community.MauiRust.Generators.csproj`
+- `src/RustMaui.Templates/Community.MauiRust.Templates.csproj`
 
 ## Required secrets
 
@@ -57,13 +59,13 @@ Recommended first validation:
 
 1. Run in `safe` mode with both publish toggles disabled.
 2. Inspect the `nuget-packages` artifact.
-3. Confirm both `.nupkg` files are present.
+3. Confirm all three `.nupkg` files are present.
 4. Confirm Windows, Android, and iOS validation jobs passed.
 5. Run again with one registry enabled at a time.
 
 ## Maintenance notes
 
 - If package project paths move, update the explicit project list in the workflow.
-- Keep the template scaffold pointing at `Community.MauiRust.Generators`; do not let dotnet template name replacement rewrite that package ID.
+- Keep the template scaffold pointing at `RustMaui.Generators`; do not let dotnet template name replacement rewrite that package ID.
 - Use `safe` mode for generator, template, workflow, or versioning changes; use `quick` only for very small low-risk updates.
 - If GitHub Packages returns `403 Forbidden`, first verify the package is linked to this repository.

@@ -1,9 +1,10 @@
 # Building
 
-This repo now builds and validates two packages together:
+This repo now builds and validates three packages together:
 
-- `Community.MauiRust.Generators`
-- `Community.MauiRust.Templates`
+- `RustMaui`
+- `RustMaui.Generators`
+- `RustMaui.Templates`
 
 ## Prerequisites
 
@@ -13,7 +14,7 @@ This repo now builds and validates two packages together:
 
 ## Local package build
 
-Pack both NuGet packages to `artifacts/nupkg`:
+Pack all NuGet packages to `artifacts/nupkg`:
 
 ```powershell
 .\dev\pack-all.ps1
@@ -22,13 +23,13 @@ Pack both NuGet packages to `artifacts/nupkg`:
 Pack a single package:
 
 ```powershell
-.\dev\pack.ps1 -Project src/Community.MauiRust.Templates/Community.MauiRust.Templates.csproj
+.\dev\pack.ps1 -Project src/RustMaui.Templates/Community.MauiRust.Templates.csproj
 ```
 
 or:
 
 ```powershell
-.\dev\pack.ps1 -Project src/Community.MauiRust.Generators/Community.MauiRust.Generators.csproj
+.\dev\pack.ps1 -Project src/RustMaui.Generators/Community.MauiRust.Generators.csproj
 ```
 
 ## Local template validation
@@ -37,6 +38,7 @@ or:
 .\dev\validate-template.ps1
 ```
 
-That script packs both packages, installs the template from the local `.nupkg`, adds the local package folder as a NuGet source, creates a temporary test app, and runs a Windows build.
+That script packs all three packages, installs the template from the local `.nupkg`, adds the local package folder as a NuGet source, creates a temporary test app, and runs a Windows build.
+That script uses `dotnet new rustmaui` and validates the local `RustMaui.Generators` package through the generated app build.
 
 The generated app is created outside the repo tree so root `Directory.Packages.props` does not leak into the smoke test.

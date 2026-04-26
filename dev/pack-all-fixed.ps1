@@ -2,8 +2,6 @@ param(
     [string]$Output = "artifacts/nupkg"
 )
 
-$ErrorActionPreference = "Stop"
-
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 & (Join-Path $scriptRoot "pack.ps1") -Project "src/RustMaui.Tool/Community.MauiRust.Tool.csproj" -Output $Output

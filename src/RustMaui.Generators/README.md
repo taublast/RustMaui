@@ -1,6 +1,6 @@
-# Community.MauiRust.Generators
+# RustMaui.Generators
 
-Build-time package for [.NET MAUI + Rust](https://github.com/taublast/Community.MauiRust) projects.
+Build-time package for [.NET MAUI + Rust](https://github.com/taublast/RustMaui) projects.
 
 Reads your `rust/lib.rs`, finds every `#[no_mangle] pub extern "C" fn`, and generates matching `[LibraryImport]` P/Invoke bindings into `Rust.Generated.cs` — automatically, on every build.
 
@@ -50,16 +50,16 @@ If the generator cannot map a Rust type to C#, it emits a TODO comment instead o
 
 ## Setup
 
-### Installed via Community.MauiRust.Templates
+### Installed via RustMaui.Templates
 
-Zero config. The template package includes the generator and emits a fixed `Community.MauiRust.Generators` package reference in the scaffolded app.
+Zero config. The template package includes the generator and emits a fixed `RustMaui.Generators` package reference in the scaffolded app.
 
 ### Install into an existing app from NuGet
 
 You can also add the package to an existing MAUI project with the CLI:
 
 ```bash
-dotnet add package Community.MauiRust.Generators
+dotnet add package RustMaui.Generators
 ```
 
 After that, make sure your project follows the expected layout or set the relevant MSBuild overrides shown below.
@@ -67,7 +67,7 @@ After that, make sure your project follows the expected layout or set the releva
 ### Manual install
 
 ```xml
-<PackageReference Include="Community.MauiRust.Generators" Version="1.0.0-pre12">
+<PackageReference Include="RustMaui.Generators" Version="1.0.0-pre12">
   <PrivateAssets>all</PrivateAssets>
   <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 </PackageReference>
@@ -75,7 +75,7 @@ After that, make sure your project follows the expected layout or set the releva
 
 The package reads `rust/Cargo.toml` to infer the native library name and writes the generated `Lib` constant for you when `Rust.cs` does not already define one.
 
-The package also wires the build-time generation logic from the repo-level `build/Community.MauiRust.Generators.targets` file. `RustCrateDir` defaults to the template layout, but you can override it.
+The package also wires the build-time generation logic from the repo-level `build/RustMaui.Generators.targets` file. `RustCrateDir` defaults to the template layout, but you can override it.
 
 ### Optional MSBuild properties
 
@@ -119,14 +119,14 @@ Everything else → TODO comment.
 
 ## Repo layout
 
-Inside the combined `Community.MauiRust` repo the package lives here:
+Inside the combined `RustMaui` repo the package lives here:
 
 ```text
-src/Community.MauiRust.Generators/
+src/RustMaui.Generators/
 build/Community.MauiRust.Generators.targets
 build/Community.MauiRust.Generators.props
 ```
 
-The template package under `src/Community.MauiRust.Templates/` consumes this package.
+The template package under `src/RustMaui.Templates/` consumes this package.
 
 Both packages are released together from the combined repo via `.github/workflows/nuget-release.yml`.

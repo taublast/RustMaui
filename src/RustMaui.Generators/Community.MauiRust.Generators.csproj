@@ -14,7 +14,7 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <DevelopmentDependency>true</DevelopmentDependency>
 
-    <PackageId>Community.MauiRust.Generators</PackageId>
+    <PackageId>RustMaui.Generators</PackageId>
     <Version>$(CommunityMauiRustPackageVersion)</Version>
     <Authors>$(CommunityMauiRustPackageAuthors)</Authors>
     <Description>Roslyn source generator that reads Rust #[no_mangle] exports and auto-generates [LibraryImport] P/Invoke bindings into a partial Rust class. Skips any export already declared manually in Rust.cs.</Description>
@@ -37,7 +37,7 @@
           Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="..\..\build\Community.MauiRust.Generators.targets"
-          Pack="true" PackagePath="build\" />
+        Pack="true" PackagePath="build\RustMaui.Generators.targets" />
   </ItemGroup>
 
 </Project>

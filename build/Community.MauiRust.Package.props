@@ -2,8 +2,8 @@
   <PropertyGroup>
     <CommunityMauiRustPackageVersion>1.0.0-pre12</CommunityMauiRustPackageVersion>
     <CommunityMauiRustPackageAuthors>Nick Kovalsky aka AppoMobi and contributors</CommunityMauiRustPackageAuthors>
-    <CommunityMauiRustPackageProjectUrl>https://github.com/taublast/Community.MauiRust</CommunityMauiRustPackageProjectUrl>
-    <CommunityMauiRustRepositoryUrl>https://github.com/taublast/Community.MauiRust</CommunityMauiRustRepositoryUrl>
+    <CommunityMauiRustPackageProjectUrl>https://github.com/taublast/RustMaui</CommunityMauiRustPackageProjectUrl>
+    <CommunityMauiRustRepositoryUrl>https://github.com/taublast/RustMaui</CommunityMauiRustRepositoryUrl>
     <CommunityMauiRustRepositoryType>git</CommunityMauiRustRepositoryType>
     <CommunityMauiRustPackageLicenseExpression>MIT</CommunityMauiRustPackageLicenseExpression>
   </PropertyGroup>
