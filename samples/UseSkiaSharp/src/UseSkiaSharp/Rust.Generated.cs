@@ -12,7 +12,11 @@ public static partial class Rust
     /// <summary>
     /// Native library name inferred from rust/Cargo.toml [package].name or the RustLibName MSBuild override.
     /// </summary>
+#if IOS && !MACCATALYST
+    private const string Lib = "__Internal";
+#else
     private const string Lib = "useskiasharp_native";
+#endif
 
     [LibraryImport(Lib, EntryPoint = "draw_circle")]
     [UnmanagedCallConv(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]

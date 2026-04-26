@@ -184,8 +184,12 @@
                       sb.AppendLine("    /// <summary>");
                       sb.AppendLine("    /// Native library name inferred from rust/Cargo.toml [package].name or the RustLibName MSBuild override.");
                       sb.AppendLine("    /// </summary>");
-                        sb.AppendLine("    private const string Lib = \"" + LibName + "\";");
-                        sb.AppendLine();
+                      sb.AppendLine("#if IOS && !MACCATALYST");
+                      sb.AppendLine("    private const string Lib = \"__Internal\";");
+                      sb.AppendLine("#else");
+                      sb.AppendLine("    private const string Lib = \"" + LibName + "\";");
+                      sb.AppendLine("#endif");
+                      sb.AppendLine();
                     }
 
                     foreach (Match m in fnRegex.Matches(libSrc))
@@ -509,7 +513,7 @@
     <RustTargetTriple>aarch64-apple-ios-sim</RustTargetTriple>
     <RustNativeFileName>lib$(RustLibName).a</RustNativeFileName>
     <RustNativeKind>staticlib</RustNativeKind>
-    <RustCargoCommand>cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
+    <RustCargoCommand>cargo $(RustCargoToolchainArgs)rustc --lib $(RustCargoFlag) --target $(RustTargetTriple) -- --crate-type $(RustNativeKind)</RustCargoCommand>
   </PropertyGroup>
 
   <!-- iOS simulator — x64 -->
@@ -517,7 +521,7 @@
     <RustTargetTriple>x86_64-apple-ios</RustTargetTriple>
     <RustNativeFileName>lib$(RustLibName).a</RustNativeFileName>
     <RustNativeKind>staticlib</RustNativeKind>
-    <RustCargoCommand>cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
+    <RustCargoCommand>cargo $(RustCargoToolchainArgs)rustc --lib $(RustCargoFlag) --target $(RustTargetTriple) -- --crate-type $(RustNativeKind)</RustCargoCommand>
   </PropertyGroup>
 
   <!-- iOS device (fallback) -->
@@ -525,7 +529,7 @@
     <RustTargetTriple>aarch64-apple-ios</RustTargetTriple>
     <RustNativeFileName>lib$(RustLibName).a</RustNativeFileName>
     <RustNativeKind>staticlib</RustNativeKind>
-    <RustCargoCommand>cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
+    <RustCargoCommand>cargo $(RustCargoToolchainArgs)rustc --lib $(RustCargoFlag) --target $(RustTargetTriple) -- --crate-type $(RustNativeKind)</RustCargoCommand>
   </PropertyGroup>
 
   <!-- MacCatalyst — x64 -->
@@ -547,6 +551,7 @@
     <RustCargoToolchainArgs Condition="'$(RustCargoToolchainArgs)' != ''">$(RustCargoToolchainArgs) </RustCargoToolchainArgs>
     <RustOutputDir>$(RustCrateDir)\target\$(RustTargetTriple)\$(RustProfile)</RustOutputDir>
     <RustOutputFile>$(RustOutputDir)\$(RustNativeFileName)</RustOutputFile>
+    <RustAppleStaticOutputPattern>$(RustOutputDir)\deps\lib$(RustLibName)-*.a</RustAppleStaticOutputPattern>
     <RustCargoCheckCommand Condition=" $([MSBuild]::IsOSPlatform('windows'))">where cargo &gt;nul 2&gt;nul</RustCargoCheckCommand>
     <RustCargoCheckCommand Condition="!$([MSBuild]::IsOSPlatform('windows'))">command -v cargo &gt;/dev/null 2&gt;&amp;1</RustCargoCheckCommand>
     <RustCargoCommand Condition="'$(RustCargoCommand)' == ''">cargo $(RustCargoToolchainArgs)build $(RustCargoFlag) --target $(RustTargetTriple)</RustCargoCommand>
@@ -600,21 +605,26 @@
     </ItemGroup>
   </Target>
 
-  <!-- iOS: static lib linked into the app binary -->
-  <ItemGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RustCrateDir)' != ''">
-    <NativeReference Include="$(RustOutputFile)" Condition="Exists('$(RustOutputFile)')">
-      <Kind>Static</Kind>
-      <ForceLoad>True</ForceLoad>
-      <SmartLink>False</SmartLink>
-    </NativeReference>
-  </ItemGroup>
+  <!-- Apple platforms: inject NativeReference items after cargo has produced the file(s). -->
+  <Target Name="AddRustNativeIosContent" AfterTargets="BuildRustNative" BeforeTargets="CollectNativeReferences"
+          Condition="$(TargetFramework.Contains('-ios')) and !$(TargetFramework.Contains('-maccatalyst')) and '$(RustCrateDir)' != ''">
+    <ItemGroup>
+      <NativeReference Include="$(RustAppleStaticOutputPattern)">
+        <Kind>Static</Kind>
+        <ForceLoad>True</ForceLoad>
+        <SmartLink>False</SmartLink>
+      </NativeReference>
+    </ItemGroup>
+  </Target>
 
-  <!-- MacCatalyst: dynamic library bundled in the .app -->
-  <ItemGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(RustCrateDir)' != ''">
-    <NativeReference Include="$(RustOutputFile)" Condition="Exists('$(RustOutputFile)')">
-      <Kind>Dynamic</Kind>
-      <SmartLink>False</SmartLink>
-    </NativeReference>
-  </ItemGroup>
+  <Target Name="AddRustNativeMacCatalystContent" AfterTargets="BuildRustNative" BeforeTargets="CollectNativeReferences"
+          Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(RustCrateDir)' != '' and Exists('$(RustOutputFile)')">
+    <ItemGroup>
+      <NativeReference Include="$(RustOutputFile)">
+        <Kind>Dynamic</Kind>
+        <SmartLink>False</SmartLink>
+      </NativeReference>
+    </ItemGroup>
+  </Target>
 
 </Project>

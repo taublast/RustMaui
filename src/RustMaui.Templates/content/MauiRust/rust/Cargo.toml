@@ -6,4 +6,3 @@ publish = false
 
 [lib]
 path = "lib.rs"
-crate-type = ["cdylib", "staticlib"]

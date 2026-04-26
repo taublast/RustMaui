@@ -87,7 +87,7 @@ After that, make sure your project follows the expected layout or set the releva
 ### Manual install
 
 ```xml
-<PackageReference Include="RustMaui.Generators" Version="1.0.0-pre15">
+<PackageReference Include="RustMaui.Generators" Version="1.0.0.2-pre1">
   <PrivateAssets>all</PrivateAssets>
   <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 </PackageReference>
