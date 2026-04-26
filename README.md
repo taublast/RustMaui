@@ -74,6 +74,13 @@ MyApp/
 
 Your Rust library will be automatically built and packaged along with your MAUI project on Android, iOS, MacCatalyst or Windows. [Prerequisites](src/RustMaui.Templates/content/MauiRust/Prerequisites.md) apply.
 
+On Apple targets, RustMaui uses one consistent model:
+
+- iOS device and iOS simulator: Rust is linked as a static archive and imported from `__Internal`
+- MacCatalyst: Rust is bundled as a dynamic library and imported by library name
+
+If you write custom Rust platform-specific loading code, treat all iOS targets as the static-link path and reserve dynamic loading behavior for MacCatalyst.
+
 ### Edit
 
 On first build the generator creates `Rust.cs` if it is missing and regenerates `Rust.Generated.cs` on every build.

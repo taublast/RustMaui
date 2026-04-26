@@ -508,7 +508,7 @@
     <RustCargoCommand>cargo $(RustCargoToolchainArgs)ndk -t arm64-v8a -t x86_64 build $(RustCargoFlag)</RustCargoCommand>
   </PropertyGroup>
 
-  <!-- iOS simulator — arm64 -->
+  <!-- iOS simulator — arm64. Uses the same static-link model as device iOS. -->
   <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RuntimeIdentifier)' == 'iossimulator-arm64' and '$(RustLibName)' != ''">
     <RustTargetTriple>aarch64-apple-ios-sim</RustTargetTriple>
     <RustNativeFileName>lib$(RustLibName).a</RustNativeFileName>
@@ -516,7 +516,7 @@
     <RustCargoCommand>cargo $(RustCargoToolchainArgs)rustc --lib $(RustCargoFlag) --target $(RustTargetTriple) -- --crate-type $(RustNativeKind)</RustCargoCommand>
   </PropertyGroup>
 
-  <!-- iOS simulator — x64 -->
+  <!-- iOS simulator — x64. Uses the same static-link model as device iOS. -->
   <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RuntimeIdentifier)' == 'iossimulator-x64' and '$(RustLibName)' != ''">
     <RustTargetTriple>x86_64-apple-ios</RustTargetTriple>
     <RustNativeFileName>lib$(RustLibName).a</RustNativeFileName>
@@ -524,7 +524,7 @@
     <RustCargoCommand>cargo $(RustCargoToolchainArgs)rustc --lib $(RustCargoFlag) --target $(RustTargetTriple) -- --crate-type $(RustNativeKind)</RustCargoCommand>
   </PropertyGroup>
 
-  <!-- iOS device (fallback) -->
+  <!-- iOS device (fallback). All iOS targets use static linking and __Internal. -->
   <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(RustTargetTriple)' == '' and '$(RustLibName)' != ''">
     <RustTargetTriple>aarch64-apple-ios</RustTargetTriple>
     <RustNativeFileName>lib$(RustLibName).a</RustNativeFileName>
@@ -605,7 +605,7 @@
     </ItemGroup>
   </Target>
 
-  <!-- Apple platforms: inject NativeReference items after cargo has produced the file(s). -->
+  <!-- Apple platforms: all iOS RIDs link a static archive; MacCatalyst bundles a dylib. -->
   <Target Name="AddRustNativeIosContent" AfterTargets="BuildRustNative" BeforeTargets="CollectNativeReferences"
           Condition="$(TargetFramework.Contains('-ios')) and !$(TargetFramework.Contains('-maccatalyst')) and '$(RustCrateDir)' != ''">
     <ItemGroup>

@@ -87,13 +87,19 @@ After that, make sure your project follows the expected layout or set the releva
 ### Manual install
 
 ```xml
-<PackageReference Include="RustMaui.Generators" Version="1.0.0.2-pre1">
+<PackageReference Include="RustMaui.Generators" Version="1.0.0.2">
   <PrivateAssets>all</PrivateAssets>
   <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 </PackageReference>
 ```
 
 The package reads `rust/Cargo.toml` to infer the native library name and writes the generated `Lib` constant for you when the user-owned companion file does not already define one.
+
+On Apple targets, RustMaui uses one linking model consistently:
+- iOS device and iOS simulator: statically linked Rust archive, imported from `__Internal`
+- MacCatalyst: bundled dynamic library, imported by library name
+
+That means custom Rust code should treat all iOS targets as the static-link path. Only MacCatalyst should rely on dynamic loading behavior.
 
 The package also wires the build-time generation logic from the repo-level `build/RustMaui.Generators.targets` file. `RustCrateDir` defaults to the template layout, but you can override it.
 

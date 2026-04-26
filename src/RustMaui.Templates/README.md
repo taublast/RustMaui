@@ -28,6 +28,13 @@ dotnet new rustmaui -n MyApp
 
 The generated project includes MAUI app code, Rust crate code, prerequisite scripts, and a package reference to `RustMaui.Generators`.
 
+Generated projects follow the shared Apple platform contract from `RustMaui.Generators`:
+
+- iOS device and iOS simulator use static Rust archives imported from `__Internal`
+- MacCatalyst uses a bundled dynamic library imported by library name
+
+If you customize the scaffolded Rust code, keep that distinction intact so your app stays aligned with the package behavior.
+
 This package is optional and focused on new-app scaffolding only. For one install path that covers both `new` and `init`, use `RustMaui`.
 
 ## Template source layout

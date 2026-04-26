@@ -3,8 +3,7 @@ use std::os::raw::{c_float, c_uint};
 
 #[cfg(any(
     not(target_os = "ios"),
-    target_abi = "macabi",
-    target_abi = "sim"
+    target_abi = "macabi"
 ))]
 mod backend {
     use super::*;
@@ -46,8 +45,7 @@ mod backend {
         { &["libSkiaSharp.dll", "SkiaSharp.dll"] }
         #[cfg(any(
             target_os = "macos",
-            all(target_os = "ios", target_abi = "macabi"),
-            all(target_os = "ios", target_abi = "sim")
+                    all(target_os = "ios", target_abi = "macabi")
         ))]
         {
             &[
@@ -65,8 +63,7 @@ mod backend {
             not(any(
                 target_os = "macos",
                 target_os = "android",
-                all(target_os = "ios", target_abi = "macabi"),
-                all(target_os = "ios", target_abi = "sim")
+                all(target_os = "ios", target_abi = "macabi")
             ))
         ))]
         { &["libSkiaSharp.so"] }
@@ -109,7 +106,7 @@ mod backend {
     }
 }
 
-#[cfg(all(target_os = "ios", not(any(target_abi = "macabi", target_abi = "sim"))))]
+#[cfg(all(target_os = "ios", not(target_abi = "macabi")))]
 mod backend {
     use super::*;
 
