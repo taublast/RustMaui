@@ -2,7 +2,7 @@
 
 Build-time package for [.NET MAUI + Rust](https://github.com/taublast/RustMaui) projects.
 
-Reads your `rust/lib.rs`, finds every `#[no_mangle] pub extern "C" fn`, and generates matching `[LibraryImport]` P/Invoke bindings into `Rust.Generated.cs` — automatically, on every build.
+Reads your `rust/lib.rs`, creates the user-owned companion file if it is missing, and generates matching `[LibraryImport]` P/Invoke bindings into `Rust.Generated.cs` — automatically, on every build.
 
 ## How it works
 
@@ -30,6 +30,8 @@ Call it from C#:
 var result = Rust.Compute(3.14f);
 ```
 
+On first build the package also creates `Rust.cs` if it is missing. That file is yours to keep and edit.
+
 ## Override a binding
 
 Declare the same `EntryPoint` in your `Rust.cs` — the generator skips it:
@@ -39,6 +41,24 @@ Declare the same `EntryPoint` in your `Rust.cs` — the generator skips it:
 [LibraryImport(Lib, EntryPoint = "compute")]
 public static partial float Compute(float value);
 ```
+
+## Rename the bindings type
+
+Use one property, `RustBindingsName`, to rename the partial class and the default interop filenames together.
+
+```xml
+<PropertyGroup>
+  <RustBindingsName>MyBindings</RustBindingsName>
+</PropertyGroup>
+```
+
+That gives you:
+
+- `MyBindings.cs` as the user-owned companion file
+- `MyBindings.Generated.cs` as the generated file
+- `public static partial class MyBindings`
+
+If you want a non-default generated file path, keep `RustBindingsName` for the base name and override only `RustGeneratedFile`.
 
 ## Unknown types
 
@@ -67,13 +87,13 @@ After that, make sure your project follows the expected layout or set the releva
 ### Manual install
 
 ```xml
-<PackageReference Include="RustMaui.Generators" Version="1.0.0-pre12">
+<PackageReference Include="RustMaui.Generators" Version="1.0.0-pre15">
   <PrivateAssets>all</PrivateAssets>
   <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 </PackageReference>
 ```
 
-The package reads `rust/Cargo.toml` to infer the native library name and writes the generated `Lib` constant for you when `Rust.cs` does not already define one.
+The package reads `rust/Cargo.toml` to infer the native library name and writes the generated `Lib` constant for you when the user-owned companion file does not already define one.
 
 The package also wires the build-time generation logic from the repo-level `build/RustMaui.Generators.targets` file. `RustCrateDir` defaults to the template layout, but you can override it.
 
@@ -84,21 +104,23 @@ The package works with no required properties in template-generated projects, bu
 | Property | Default value | Purpose |
 |---|---|---|
 | `RustCrateDir` | `../../rust` from the app project directory | Path to the Rust crate root |
+| `RustBindingsName` | `Rust` | Base name for the partial class and default interop files |
 | `RustLibName` | Auto-read from `Cargo.toml` `[package].name` and normalized for Rust | Native library name |
 | `RustProfile` | `release` | Cargo profile to build with |
 | `RustCargoToolchainArgs` | Empty | Extra toolchain selector arguments such as `+nightly` |
 | `RustGeneratorSrcDir` | `$(RustCrateDir)` | Override path for `lib.rs` when it is not under the crate root |
-| `RustGeneratedFile` | `$(MSBuildProjectDirectory)\Rust.Generated.cs` | Override output path for `Rust.Generated.cs` |
+| `RustGeneratedFile` | `$(MSBuildProjectDirectory)\$(RustBindingsName).Generated.cs` | Override output path for the generated bindings file |
 
 For example, with a custom layout:
 
 ```xml
 <PropertyGroup>
+  <RustBindingsName>MyBindings</RustBindingsName>
   <RustCrateDir>..\..\native\mycrate</RustCrateDir>
   <RustGeneratorSrcDir>..\..\rust</RustGeneratorSrcDir>
   <RustLibName>your_crate_name</RustLibName>
   <RustProfile>release</RustProfile>
-  <RustGeneratedFile>Generated\RustBindings.g.cs</RustGeneratedFile>
+  <RustGeneratedFile>Generated\MyBindings.g.cs</RustGeneratedFile>
 </PropertyGroup>
 ```
 

@@ -9,6 +9,7 @@ internal static class Program
     private const string SourceName = "MauiRust";
     private const string CrateToken = "mauirustnativelib";
     private const string GeneratorPackageIdToken = "__GENERATOR_PACKAGE_ID__";
+    private const string GeneratorPackageVersionToken = "__GENERATOR_PACKAGE_VERSION__";
     private const string GeneratorPackageId = "RustMaui.Generators";
     private const string GeneratorIncludeAssets = "runtime; build; native; contentfiles; analyzers; buildtransitive";
 
@@ -219,11 +220,13 @@ internal static class Program
     private static Dictionary<string, string> CreateReplacements(string name)
     {
         var crateName = ToCrateName(name);
+        var generatorPackageVersion = GetSharedPackageVersion();
         return new Dictionary<string, string>(StringComparer.Ordinal)
         {
             [SourceName] = name,
             [CrateToken] = crateName,
-            [GeneratorPackageIdToken] = GeneratorPackageId
+            [GeneratorPackageIdToken] = GeneratorPackageId,
+            [GeneratorPackageVersionToken] = generatorPackageVersion
         };
     }
 

@@ -11,7 +11,8 @@
       RustProfile          — cargo profile, default "release"
       RustCargoToolchainArgs — e.g. "+nightly" to select a toolchain
       RustGeneratorSrcDir  — override path for lib.rs if not at $(RustCrateDir)\lib.rs
-      RustGeneratedFile    — override output path for Rust.Generated.cs
+      RustBindingsName     — base name for the partial class and default interop files (e.g. Rust -> Rust.cs / Rust.Generated.cs)
+      RustGeneratedFile    — override output path for the generated bindings file
   -->
 
   <!-- ================================================================ -->
@@ -37,8 +38,65 @@
 
   <PropertyGroup>
     <RustGeneratorSrcDir Condition="'$(RustGeneratorSrcDir)' == '' and '$(RustCrateDir)' != ''">$(RustCrateDir)</RustGeneratorSrcDir>
-    <RustGeneratedFile   Condition="'$(RustGeneratedFile)'   == ''">$(MSBuildProjectDirectory)\Rust.Generated.cs</RustGeneratedFile>
+    <RustBindingsName    Condition="'$(RustBindingsName)'    == ''">Rust</RustBindingsName>
+    <_RustManualFile>$(MSBuildProjectDirectory)\$(RustBindingsName).cs</_RustManualFile>
+    <RustGeneratedFile   Condition="'$(RustGeneratedFile)'   == ''">$(MSBuildProjectDirectory)\$(RustBindingsName).Generated.cs</RustGeneratedFile>
   </PropertyGroup>
+
+  <UsingTask TaskName="WriteRustManualStub" TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <Task>
+      <Code Type="Class" Language="cs">
+      <![CDATA[
+        using System;
+        using System.IO;
+        using System.Text;
+        using Microsoft.Build.Framework;
+        using Microsoft.Build.Utilities;
+
+        public class WriteRustManualStub : Task
+        {
+            [Required] public string OutputPath { get; set; }
+            public string Namespace { get; set; }
+            public string ClassName { get; set; }
+
+            public override bool Execute()
+            {
+                try
+                {
+                    if (File.Exists(OutputPath))
+                        return true;
+
+                    string ns = string.IsNullOrWhiteSpace(Namespace) ? "MauiRust" : Namespace;
+                    string className = string.IsNullOrWhiteSpace(ClassName) ? "Rust" : ClassName;
+
+                    string? directory = Path.GetDirectoryName(OutputPath);
+                    if (!string.IsNullOrEmpty(directory))
+                        Directory.CreateDirectory(directory);
+
+                    var sb = new StringBuilder();
+                    sb.AppendLine("namespace " + ns + ";");
+                    sb.AppendLine();
+                    sb.AppendLine("public static partial class " + className);
+                    sb.AppendLine("{");
+                    sb.AppendLine("    // Add manual bindings, helpers, or overrides here.");
+                    sb.AppendLine("    // The generator skips any [LibraryImport] EntryPoint already declared in this file.");
+                    sb.AppendLine("}");
+
+                    File.WriteAllText(OutputPath, sb.ToString(), new UTF8Encoding(false));
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Log.LogError("WriteRustManualStub failed: " + ex.Message);
+                    return false;
+                }
+            }
+        }
+      ]]>
+      </Code>
+    </Task>
+  </UsingTask>
 
   <UsingTask TaskName="WriteRustGenerated" TaskFactory="RoslynCodeTaskFactory"
              AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
@@ -60,6 +118,7 @@
             [Required] public string OutputPath { get; set; }
             public string Namespace { get; set; }
             public string LibName   { get; set; }
+            public string ClassName { get; set; }
 
             private static readonly Dictionary<string, string> TypeMap = new Dictionary<string, string>
             {
@@ -85,14 +144,20 @@
                 {
                     string libSrc = File.ReadAllText(LibRsPath);
                     string rustCs = File.Exists(RustCsPath) ? File.ReadAllText(RustCsPath) : string.Empty;
-                string rustCsForScan = StripComments(rustCs);
+                    string rustCsForScan = StripComments(rustCs);
+                    string rustCsFileName = Path.GetFileName(RustCsPath);
 
                     string ns = string.IsNullOrWhiteSpace(Namespace) ? "MauiRust" : Namespace;
-                var nsMatch = Regex.Match(rustCsForScan, @"namespace\s+([\w.]+)");
+                    string className = string.IsNullOrWhiteSpace(ClassName) ? "Rust" : ClassName;
+
+                    var nsMatch = Regex.Match(rustCsForScan, @"namespace\s+([\w.]+)");
                     if (nsMatch.Success) ns = nsMatch.Groups[1].Value;
 
+                    var classMatch = Regex.Match(rustCsForScan, @"\bclass\s+(\w+)");
+                    if (classMatch.Success) className = classMatch.Groups[1].Value;
+
                     var existing = new HashSet<string>(StringComparer.Ordinal);
-                foreach (Match em in Regex.Matches(rustCsForScan, @"EntryPoint\s*=\s*""([^""]+)"""))
+                    foreach (Match em in Regex.Matches(rustCsForScan, @"EntryPoint\s*=\s*""([^""]+)"""))
                         existing.Add(em.Groups[1].Value);
 
                     var fnRegex = new Regex(
@@ -103,13 +168,13 @@
                     sb.AppendLine("// <auto-generated/>");
                     sb.AppendLine("// Source: " + Path.GetFileName(LibRsPath));
                     sb.AppendLine("// Generated by RustMaui.Generators — do not edit.");
-                    sb.AppendLine("// To override a binding declare it in Rust.cs — it will be skipped here.");
+                    sb.AppendLine("// To override a binding declare it in " + rustCsFileName + " — it will be skipped here.");
                     sb.AppendLine();
                     sb.AppendLine("using System.Runtime.InteropServices;");
                     sb.AppendLine();
                     sb.AppendLine("namespace " + ns + ";");
                     sb.AppendLine();
-                    sb.AppendLine("public static partial class Rust");
+                    sb.AppendLine("public static partial class " + className);
                     sb.AppendLine("{");
 
                     // Emit Lib constant if Rust.cs doesn't define it
@@ -137,7 +202,7 @@
 
                         if (unknown)
                         {
-                            sb.AppendLine("    // TODO: bind '" + name + "' — unrecognized type(s), declare manually in Rust.cs");
+                            sb.AppendLine("    // TODO: bind '" + name + "' — unrecognized type(s), declare manually in " + rustCsFileName);
                         }
                         else
                         {
@@ -377,16 +442,27 @@
 
   <Target Name="GenerateRustBindingsFile"
           BeforeTargets="BeforeBuild;CoreCompile"
-          Inputs="$(RustGeneratorSrcDir)\lib.rs;$(MSBuildProjectDirectory)\Rust.cs"
+          Inputs="$(RustGeneratorSrcDir)\lib.rs;$(_RustManualFile)"
           Outputs="$(RustGeneratedFile)"
           Condition="'$(RustGeneratorSrcDir)' != '' and Exists('$(RustGeneratorSrcDir)\lib.rs')">
     <WriteRustGenerated
       LibRsPath="$(RustGeneratorSrcDir)\lib.rs"
-      RustCsPath="$(MSBuildProjectDirectory)\Rust.cs"
+      RustCsPath="$(_RustManualFile)"
       OutputPath="$(RustGeneratedFile)"
       Namespace="$(RootNamespace)"
-      LibName="$(RustLibName)" />
+      LibName="$(RustLibName)"
+      ClassName="$(RustBindingsName)" />
     <Message Importance="high" Text="==&gt; Rust.Generated.cs updated" />
+  </Target>
+
+  <Target Name="EnsureRustManualFile"
+          BeforeTargets="GenerateRustBindingsFile"
+          Condition="'$(_RustManualFile)' != '' and !Exists('$(_RustManualFile)')">
+    <WriteRustManualStub
+      OutputPath="$(_RustManualFile)"
+      Namespace="$(RootNamespace)"
+      ClassName="$(RustBindingsName)" />
+    <Message Importance="high" Text="==&gt; $(MSBuildProjectFile): created $([System.IO.Path]::GetFileName('$(_RustManualFile)'))" />
   </Target>
 
   <!--
@@ -397,6 +473,11 @@
   <ItemGroup Condition="'$(RustGeneratedFile)' != ''">
     <Compile Remove="$(RustGeneratedFile)" />
     <Compile Include="$(RustGeneratedFile)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(_RustManualFile)' != ''">
+    <Compile Remove="$(_RustManualFile)" />
+    <Compile Include="$(_RustManualFile)" />
   </ItemGroup>
 
   <!-- ================================================================ -->

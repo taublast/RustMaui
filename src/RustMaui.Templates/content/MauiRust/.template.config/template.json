@@ -19,6 +19,12 @@
       "defaultValue": "RustMaui.Generators",
       "replaces": "__GENERATOR_PACKAGE_ID__"
     },
+    "GeneratorPackageVersion": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "1.0.0-pre15",
+      "replaces": "__GENERATOR_PACKAGE_VERSION__"
+    },
     "CrateName": {
       "type": "generated",
       "generator": "casing",

@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <RustMauiPackageVersion>1.0.0-pre13</RustMauiPackageVersion>
+    <RustMauiPackageVersion>1.0.0-pre15</RustMauiPackageVersion>
     <RustMauiPackageAuthors>Nick Kovalsky aka AppoMobi and contributors</RustMauiPackageAuthors>
     <RustMauiPackageProjectUrl>https://github.com/taublast/RustMaui</RustMauiPackageProjectUrl>
     <RustMauiRepositoryUrl>https://github.com/taublast/RustMaui</RustMauiRepositoryUrl>

@@ -2,6 +2,9 @@
 
 # RustMaui
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![NuGet release master](https://github.com/taublast/RustMaui/actions/workflows/nuget-release.yml/badge.svg?branch=main)](https://github.com/taublast/RustMaui/actions/workflows/nuget-release.yml)
+
 **Rust superpowers for .NET MAUI** 🍬🌴
 
 <img width="800" alt="RustMaui" src="https://github.com/user-attachments/assets/6869bd41-22d9-4193-b2fa-48552593f8ed" />
@@ -43,11 +46,33 @@ rustmaui init .
 
 When you create MAUI+Rust app from template or add Rust support to an existing app, simple Rust files are created and added to your solution. Appropriate package is added to your MAUI app to handle Rust build and auto-generate Rust bindings.
 
+```text
+MyApp/
+├── src/
+│   └── MauiRust/
+│       ├── AppShell.xaml
+│       ├── MainPage.xaml
+│       ├── MainPage.xaml.cs
+│       ├── Rust.cs
+│       ├── Rust.Generated.cs
+│       └── MauiRust.csproj
+├── rust/
+│   ├── Cargo.toml
+│   └── lib.rs
+└── MyApp.sln
+```
+
+`Rust.Generated.cs` contains auto-generated Rust bindings, while `Rust.cs` is a user-controlled file for custom bindings. Can change the name if needed.
+
 ### Build
 
-Your Rust library will be automatically built and packaged along with your MAUI project on Android, iOS, MacCatalyst or Windows. [Prerequisites](...) apply.
+Your Rust library will be automatically built and packaged along with your MAUI project on Android, iOS, MacCatalyst or Windows. [Prerequisites](src/RustMaui.Templates/content/MauiRust/Prerequisites.md) apply.
 
 ### Edit
+
+On first build the generator creates `Rust.cs` if it is missing and regenerates `Rust.Generated.cs` on every build.
+
+If you want a different base name, set `RustBindingsName` in your app project. For example, `RustBindingsName=MyBindings` gives you `MyBindings.cs`, `MyBindings.Generated.cs`, and a `MyBindings` partial class.
 
 Write a Rust export:
 
@@ -88,7 +113,7 @@ Package docs: [src/RustMaui.Tool/README.md](src/RustMaui.Tool/README.md).
 
 ### `RustMaui.Generators`
 
-Build-time package that discovers Rust exports, generates `Rust.Generated.cs`, and wires Rust native build targets.
+Build-time package that discovers Rust exports, creates the user-owned companion file when missing, generates the bindings file, and wires Rust native build targets.
 
 - ships the generator/build package
 - packs `build/RustMaui.Generators.targets`
