@@ -29,6 +29,12 @@ It's a combination of cross-platform Rust build support and bindings generators 
 dotnet tool install --global RustMaui
 ```
 
+### Update Older Version
+
+```bash
+dotnet tool update --all
+```
+
 ### Create a new MAUI + Rust app
 
 ```bash
