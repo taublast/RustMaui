@@ -81,12 +81,14 @@ The package also wires the build-time generation logic from the repo-level `buil
 
 The package works with no required properties in template-generated projects, but it supports these optional overrides in your app `.csproj`:
 
-- `RustCrateDir`: path to the Rust crate root; defaults to the template convention `../../rust`
-- `RustLibName`: native library name; auto-read from `Cargo.toml` `[package].name` if not set
-- `RustProfile`: Cargo profile to build with; defaults to `release`
-- `RustCargoToolchainArgs`: extra toolchain selector arguments such as `+nightly`
-- `RustGeneratorSrcDir`: override path for `lib.rs` when it is not under `$(RustCrateDir)`
-- `RustGeneratedFile`: override output path for `Rust.Generated.cs`
+| Property | Purpose |
+|---|---|
+| `RustCrateDir` | Path to the Rust crate root; defaults to the template convention `../../rust` |
+| `RustLibName` | Native library name; auto-read from `Cargo.toml` `[package].name` if not set |
+| `RustProfile` | Cargo profile to build with; defaults to `release` |
+| `RustCargoToolchainArgs` | Extra toolchain selector arguments such as `+nightly` |
+| `RustGeneratorSrcDir` | Override path for `lib.rs` when it is not under `$(RustCrateDir)` |
+| `RustGeneratedFile` | Override output path for `Rust.Generated.cs` |
 
 For example, with a custom layout:
 
