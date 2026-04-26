@@ -22,7 +22,7 @@
     "GeneratorPackageVersion": {
       "type": "parameter",
       "datatype": "text",
-      "defaultValue": "1.0.0.2",
+      "defaultValue": "1.0.0.3",
       "replaces": "__GENERATOR_PACKAGE_VERSION__"
     },
     "CrateName": {
