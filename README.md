@@ -10,9 +10,9 @@
 
 ---
 
-**RustMaui** brings the **performance, safety, and joy of Rust** directly into your .NET MAUI applications. It's a combination of cross-platform Rust build support and bindings generators.
+**RustMaui** brings the **performance, safety, and joy of Rust** directly into your .NET MAUI applications. 
 
-Includes everything you need:
+It's a combination of cross-platform Rust build support and bindings generators and includes everything you need:
 
 - A friendly `dotnet tool` for instant setup
 - Automatic build-time Rust bindings generation
