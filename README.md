@@ -111,6 +111,7 @@ Call it directly from your .NET code:
 var result = Rust.ComputeMe(3.14f);
 ```
 
+Learn more, read [the article behind this project](https://taublast.github.io/posts/MauiRust/)
 
 ## Packages
 
